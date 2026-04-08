@@ -529,16 +529,16 @@ const fmtK  = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n);
 const trunc = (s,n) => s.length > n ? s.slice(0,n)+'…' : s;
 
 // ── FETCH ────────────────────────────────────────────────────────
-async function loadData() {
-  try {
-    const res  = await fetch(CSV_URL);
-    const text = await res.text();
-    const { data } = Papa.parse(text, { skipEmptyLines: true });
-    processData(data);
-  } catch {
-    document.getElementById('loader').innerHTML =
-      '<p style="color:#b8410e;font-size:14px">⚠ Error al cargar los datos. Verifica la URL de la hoja.</p>';
-  }
+function loadData() {
+  Papa.parse(CSV_URL, {
+    download: true,
+    skipEmptyLines: true,
+    complete: results => processData(results.data),
+    error: err => {
+      document.getElementById('loader').innerHTML =
+        `<p style="color:#b8410e;font-size:14px">⚠ Error al cargar los datos: ${err.message || 'revisa la URL o los permisos de la hoja.'}</p>`;
+    }
+  });
 }
 
 // ── PROCESS ──────────────────────────────────────────────────────

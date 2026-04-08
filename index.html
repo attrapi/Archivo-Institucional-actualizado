@@ -3,539 +3,653 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Archivo Institucional ATTRAPI — Seguimiento de Cajas</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <title>Archivo Institucional · ATTRAPI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
+    /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── TOKENS ── */
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --card: #21253a;
-      --border: #2e3350;
-      --accent: #4f7ef8;
-      --accent2: #7c5cbf;
-      --accent3: #2ec4b6;
-      --accent4: #f4a261;
-      --text: #e8eaf6;
-      --muted: #8b90b0;
-      --danger: #e05252;
-      --success: #3dd68c;
+      --guinda:   #691c32;
+      --guinda-2: #8b2a43;
+      --guinda-3: #541426;
+      --guinda-4: #3e0f1e;
+      --t1: #ffffff;
+      --t2: rgba(243,231,235,.88);
+      --t3: rgba(243,231,235,.52);
+      --t4: rgba(243,231,235,.28);
+      --green:  #22c55e;
+      --amber:  #f59e0b;
+      --red:    #ef4444;
+      --teal:   #14b8a6;
+      --teal-l: #5eead4;
+      --blue:   #3b82f6;
+      --purple: #a855f7;
+      --card-bg: rgba(255,255,255,.055);
+      --card-border: rgba(255,255,255,.1);
+      --card-shadow: 0 18px 40px rgba(0,0,0,.35);
     }
 
+    /* ── BASE ── */
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--guinda-3);
+      color: var(--t1);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* ── HEADER ── */
-    header {
-      background: linear-gradient(135deg, #141728 0%, #1e2240 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 2rem;
+    /* ── ANIMATIONS ── */
+    @keyframes up {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .35; }
+    }
+    @keyframes barGrow {
+      from { width: 0; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: linear-gradient(90deg, var(--guinda-4) 0%, var(--guinda-3) 100%);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      padding: .75rem 1.5rem;
       display: flex;
       align-items: center;
-      gap: 1.2rem;
+      gap: 1rem;
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(12px);
     }
-    .header-icon {
-      width: 48px; height: 48px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 12px;
+    .brand {
+      display: flex; align-items: center; gap: .65rem;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--guinda-2), var(--guinda));
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; flex-shrink: 0;
+      font-size: 1.1rem;
     }
-    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .3px; }
-    header p { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
-    .badge {
-      margin-left: auto; background: var(--accent); color: #fff;
-      font-size: .72rem; font-weight: 700; padding: .3rem .75rem;
-      border-radius: 20px; letter-spacing: .5px; white-space: nowrap;
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800; font-size: 1.05rem;
+      letter-spacing: .5px;
+    }
+    .brand-sub {
+      font-size: .68rem; color: var(--t3);
+      letter-spacing: .3px; margin-top: 1px;
     }
 
-    /* ── LAYOUT ── */
-    main { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .topbar-pills { display: flex; gap: .5rem; margin-left: auto; align-items: center; }
+    .pill {
+      display: flex; align-items: center; gap: .35rem;
+      font-size: .68rem; font-weight: 700; letter-spacing: .6px;
+      padding: .28rem .7rem; border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .pill-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .pill.live    { background: rgba(34,197,94,.15);  color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+    .pill.live .pill-dot { background: var(--green); }
+    .pill.proceso { background: rgba(245,158,11,.15); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
+    .pill.proceso .pill-dot { background: var(--amber); }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 2rem 1.5rem 1.2rem;
+      animation: up .45s ease both;
+    }
+    .page-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900; font-size: clamp(1.4rem, 3vw, 2rem);
+      line-height: 1.15;
+    }
+    .page-header h1 span { color: var(--teal-l); }
+    .page-header p {
+      color: var(--t3); font-size: .82rem; margin-top: .4rem;
+    }
+    #last-update { color: var(--teal-l); font-weight: 600; }
+
+    /* ── MAIN WRAPPER ── */
+    .wrapper { max-width: 1320px; margin: 0 auto; padding: 0 1.5rem 3rem; }
 
     /* ── LOADER ── */
     #loader {
       display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 1rem; padding: 4rem;
-      color: var(--muted);
+      justify-content: center; gap: 1rem; padding: 5rem 2rem;
+      color: var(--t3);
     }
     .spinner {
-      width: 44px; height: 44px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,.1);
+      border-top-color: var(--teal);
       border-radius: 50%;
-      animation: spin .8s linear infinite;
+      animation: spin .7s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── CARDS ── */
+    /* ── KPI GRID ── */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem; margin-bottom: 2rem;
+      grid-template-columns: repeat(6, 1fr);
+      gap: .85rem;
+      margin-bottom: 1.5rem;
+      animation: up .45s .05s ease both;
     }
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 640px)  { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+
     .kpi {
-      background: var(--card);
-      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 1.4rem 1.5rem;
+      padding: 1.1rem 1.2rem;
       position: relative; overflow: hidden;
-      transition: transform .2s, box-shadow .2s;
+      transition: filter .2s;
+      cursor: default;
     }
-    .kpi:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .kpi:hover { filter: brightness(1.06); }
     .kpi::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      border-radius: 14px 0 0 14px;
     }
-    .kpi.blue::before  { background: var(--accent); }
-    .kpi.purple::before { background: var(--accent2); }
-    .kpi.teal::before  { background: var(--accent3); }
-    .kpi.orange::before { background: var(--accent4); }
+    .kpi.teal::before   { background: var(--teal); }
+    .kpi.green::before  { background: var(--green); }
+    .kpi.amber::before  { background: var(--amber); }
+    .kpi.purple::before { background: var(--purple); }
+    .kpi.blue::before   { background: var(--blue); }
+    .kpi.red::before    { background: var(--red); }
 
-    .kpi-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: .5rem; }
-    .kpi-value { font-size: 2rem; font-weight: 800; line-height: 1; }
-    .kpi.blue   .kpi-value { color: var(--accent); }
-    .kpi.purple .kpi-value { color: var(--accent2); }
-    .kpi.teal   .kpi-value { color: var(--accent3); }
-    .kpi.orange .kpi-value { color: var(--accent4); }
-    .kpi-sub { font-size: .78rem; color: var(--muted); margin-top: .4rem; }
+    .kpi-icon { font-size: 1.3rem; margin-bottom: .5rem; }
+    .kpi-val {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900; font-size: 1.9rem;
+      line-height: 1; margin-bottom: .2rem;
+    }
+    .kpi.teal   .kpi-val { color: var(--teal-l); }
+    .kpi.green  .kpi-val { color: var(--green); }
+    .kpi.amber  .kpi-val { color: var(--amber); }
+    .kpi.purple .kpi-val { color: var(--purple); }
+    .kpi.blue   .kpi-val { color: #93c5fd; }
+    .kpi.red    .kpi-val { color: #fca5a5; }
 
-    /* ── CHARTS GRID ── */
-    .charts-grid {
+    .kpi-label { font-size: .7rem; color: var(--t3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
+    .kpi-sub   { font-size: .7rem; color: var(--t4); margin-top: .3rem; }
+
+    /* ── MAIN GRID ── */
+    .main-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem; margin-bottom: 2rem;
+      grid-template-columns: 420px 1fr;
+      gap: 1.25rem;
     }
-    @media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 960px) { .main-grid { grid-template-columns: 1fr; } }
 
-    .chart-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.5rem;
+    /* ── CARD ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      animation: up .45s .1s ease both;
     }
-    .chart-card.full { grid-column: 1 / -1; }
-    .chart-title {
-      font-size: .88rem; font-weight: 700; color: var(--text);
-      margin-bottom: 1.2rem; letter-spacing: .3px;
-      display: flex; align-items: center; gap: .5rem;
+    .card-head {
+      padding: 1.1rem 1.3rem .8rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .5rem;
     }
-    .chart-title span { font-size: 1rem; }
-    .chart-wrap { position: relative; }
-    .chart-wrap canvas { max-height: 280px; }
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700; font-size: .9rem;
+      display: flex; align-items: center; gap: .45rem;
+    }
+    .card-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      color: var(--teal-l);
+      background: rgba(20,184,166,.12);
+      border: 1px solid rgba(20,184,166,.25);
+      padding: .18rem .6rem; border-radius: 20px;
+    }
+    .card-body { padding: 1rem 1.3rem 1.3rem; }
+
+    /* ── CHART ENTRIES (CSS bars) ── */
+    .chart-entry {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: .3rem .8rem;
+      align-items: center;
+      padding: .55rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .chart-entry:last-child { border-bottom: none; }
+    .chart-entry--hero .entry-name { color: var(--teal-l); font-weight: 700; }
+
+    .entry-name {
+      font-size: .78rem; color: var(--t2);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      grid-column: 1; grid-row: 1;
+    }
+    .entry-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: .85rem; font-weight: 800;
+      color: var(--t1); text-align: right;
+      grid-column: 2; grid-row: 1 / 3;
+      align-self: center;
+    }
+    .bar-track {
+      grid-column: 1; grid-row: 2;
+      height: 5px; background: rgba(255,255,255,.08);
+      border-radius: 3px; overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 3px;
+      animation: barGrow .7s ease both;
+    }
+    .bar-fill.teal   { background: linear-gradient(90deg, var(--teal), var(--teal-l)); }
+    .bar-fill.green  { background: linear-gradient(90deg, #16a34a, var(--green)); }
+    .bar-fill.amber  { background: linear-gradient(90deg, #d97706, var(--amber)); }
+    .bar-fill.purple { background: linear-gradient(90deg, #7e22ce, var(--purple)); }
+    .bar-fill.blue   { background: linear-gradient(90deg, #1d4ed8, var(--blue)); }
+
+    /* ── DUAL BAR ── */
+    .dual-entry {
+      padding: .65rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .dual-entry:last-child { border-bottom: none; }
+    .dual-name {
+      font-size: .76rem; color: var(--t2);
+      margin-bottom: .45rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dual-bars { display: flex; flex-direction: column; gap: .3rem; }
+    .dual-row { display: flex; align-items: center; gap: .6rem; }
+    .dual-tag { font-size: .62rem; color: var(--t3); width: 70px; flex-shrink: 0; font-weight: 600; letter-spacing: .3px; }
+    .dual-track { flex: 1; height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+    .dual-num { font-family: 'Outfit', sans-serif; font-size: .78rem; font-weight: 800; width: 42px; text-align: right; flex-shrink: 0; }
 
     /* ── TABLE SECTION ── */
-    .table-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.5rem;
-      overflow: hidden;
+    .table-section {
+      margin-top: 1.25rem;
+      animation: up .45s .15s ease both;
     }
-    .table-header {
+    .table-toolbar {
       display: flex; align-items: center; flex-wrap: wrap;
-      gap: 1rem; margin-bottom: 1.2rem;
+      gap: .75rem; padding: 1rem 1.3rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
     }
-    .table-title { font-size: .88rem; font-weight: 700; flex: 1 1 auto; }
-    .search-box {
-      position: relative;
-    }
-    .search-box input {
-      background: var(--surface);
-      border: 1px solid var(--border);
+    .table-toolbar .card-title { flex: 1; }
+    .search-wrap { position: relative; }
+    .search-wrap input {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: 8px;
-      color: var(--text);
-      font-size: .82rem;
-      padding: .5rem .9rem .5rem 2.2rem;
-      width: 240px;
+      color: var(--t1);
+      font-family: 'Inter', sans-serif;
+      font-size: .78rem;
+      padding: .45rem .85rem .45rem 2rem;
+      width: 220px;
       outline: none;
       transition: border-color .2s;
     }
-    .search-box input:focus { border-color: var(--accent); }
-    .search-box::before {
-      content: '🔍';
-      position: absolute; left: .6rem; top: 50%;
-      transform: translateY(-50%);
-      font-size: .78rem;
-      pointer-events: none;
+    .search-wrap input::placeholder { color: var(--t4); }
+    .search-wrap input:focus { border-color: var(--teal); }
+    .search-wrap::before {
+      content: '⌕'; position: absolute;
+      left: .55rem; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; color: var(--t3); pointer-events: none;
     }
 
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .78rem; }
     thead th {
-      background: var(--surface);
-      color: var(--muted);
-      font-size: .72rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .6px;
-      padding: .75rem 1rem; text-align: left;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-      cursor: pointer;
-      user-select: none;
+      background: rgba(0,0,0,.25);
+      color: var(--t3); font-size: .65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .7px;
+      padding: .65rem 1rem; text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      white-space: nowrap; cursor: pointer; user-select: none;
     }
-    thead th:hover { color: var(--accent); }
-    thead th.sorted { color: var(--accent); }
+    thead th:hover { color: var(--teal-l); }
+    thead th.sorted { color: var(--teal-l); }
     tbody tr {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(255,255,255,.05);
       transition: background .15s;
     }
-    tbody tr:hover { background: rgba(79,126,248,.07); }
+    tbody tr:hover { background: rgba(255,255,255,.04); }
     tbody tr:last-child { border-bottom: none; }
-    td { padding: .7rem 1rem; vertical-align: middle; }
-    td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-    td.num.accent { color: var(--accent); }
-    td.num.teal   { color: var(--accent3); }
-    td.num.orange { color: var(--accent4); }
+    td { padding: .65rem 1rem; vertical-align: middle; color: var(--t2); }
+    td.bold { color: var(--t1); font-weight: 600; }
+    td.num {
+      text-align: right; font-family: 'Outfit', sans-serif;
+      font-weight: 700; font-variant-numeric: tabular-nums;
+    }
+    td.num.teal   { color: var(--teal-l); }
+    td.num.amber  { color: var(--amber); }
+    td.num.green  { color: var(--green); }
 
-    .pill {
-      display: inline-block;
-      background: rgba(79,126,248,.15);
-      color: var(--accent);
-      border-radius: 20px;
-      font-size: .7rem; font-weight: 700;
-      padding: .2rem .65rem;
+    .idx-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: rgba(255,255,255,.07);
+      font-size: .68rem; font-weight: 700; color: var(--t3);
     }
 
-    .progress-bar {
-      height: 6px; background: var(--border);
-      border-radius: 3px; overflow: hidden;
-      margin-top: 4px;
+    .mini-bar-track {
+      height: 4px; background: rgba(255,255,255,.08);
+      border-radius: 3px; overflow: hidden; margin-top: 3px;
     }
-    .progress-fill {
+    .mini-bar-fill {
       height: 100%; border-radius: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transition: width .6s ease;
+      background: linear-gradient(90deg, var(--teal), var(--teal-l));
+      animation: barGrow .7s ease both;
     }
 
     .no-results {
       text-align: center; padding: 3rem;
-      color: var(--muted); font-size: .9rem;
+      color: var(--t3); font-size: .85rem;
     }
 
     /* ── FOOTER ── */
     footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--muted);
-      font-size: .75rem;
-      border-top: 1px solid var(--border);
-      margin-top: 2rem;
+      text-align: center; padding: 2rem 1.5rem;
+      color: var(--t4); font-size: .72rem;
+      border-top: 1px solid rgba(255,255,255,.06);
+      margin-top: 1rem;
     }
-    footer strong { color: var(--text); }
+    footer strong { color: var(--t2); }
 
-    /* ── LAST UPDATE TAG ── */
-    #last-update {
-      font-size: .72rem; color: var(--muted);
-      margin-bottom: 1.5rem;
-    }
-    #last-update span { color: var(--accent3); font-weight: 600; }
+    /* ── EMPTY STATE ── */
+    .empty-chart { text-align: center; padding: 2rem 1rem; color: var(--t3); font-size: .82rem; }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="header-icon">📦</div>
-  <div>
-    <h1>Archivo Institucional ATTRAPI</h1>
-    <p>Concentración y seguimiento de cajas transferidas · DGDFM</p>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">📦</div>
+    <div>
+      <div class="brand-name">ATTRAPI</div>
+      <div class="brand-sub">Archivo Institucional · DGDFM</div>
+    </div>
   </div>
-  <div class="badge">LIVE DATA</div>
-</header>
+  <div class="topbar-pills">
+    <div class="pill live"><div class="pill-dot"></div>Live</div>
+    <div class="pill proceso"><div class="pill-dot"></div>En proceso</div>
+  </div>
+</div>
 
-<main>
+<!-- PAGE HEADER -->
+<div class="wrapper">
+  <div class="page-header">
+    <h1>Concentración de <span>Archivo Institucional</span></h1>
+    <p>Seguimiento de transferencias · Unidades extintas ATTRAPI → DGDFM &nbsp;·&nbsp; <span id="last-update">Cargando…</span></p>
+  </div>
+
+  <!-- LOADER -->
   <div id="loader">
     <div class="spinner"></div>
     <p>Cargando datos desde Google Sheets…</p>
   </div>
 
+  <!-- DASHBOARD (hidden until data loads) -->
   <div id="dashboard" style="display:none">
-    <p id="last-update"></p>
 
     <!-- KPIs -->
-    <div class="kpi-grid">
-      <div class="kpi blue">
-        <div class="kpi-label">Total de Cajas</div>
-        <div class="kpi-value" id="kpi-total">—</div>
-        <div class="kpi-sub">instaladas en archivo</div>
-      </div>
-      <div class="kpi purple">
-        <div class="kpi-label">Unidades ATTRAPI</div>
-        <div class="kpi-value" id="kpi-unidades">—</div>
-        <div class="kpi-sub">áreas registradas</div>
-      </div>
+    <div class="kpi-grid" id="kpi-grid">
       <div class="kpi teal">
-        <div class="kpi-label">Cajas Transferidas</div>
-        <div class="kpi-value" id="kpi-transferidas">—</div>
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-val" id="kpi-total">—</div>
+        <div class="kpi-label">Total de Cajas</div>
+        <div class="kpi-sub">en archivo institucional</div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-icon">🏢</div>
+        <div class="kpi-val" id="kpi-unidades">—</div>
+        <div class="kpi-label">Unidades ATTRAPI</div>
+        <div class="kpi-sub">áreas con registro</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-icon">🔁</div>
+        <div class="kpi-val" id="kpi-transf">—</div>
+        <div class="kpi-label">Transferidas</div>
         <div class="kpi-sub">desde ATTRAPI</div>
       </div>
-      <div class="kpi orange">
-        <div class="kpi-label">Cajas por Derogación</div>
-        <div class="kpi-value" id="kpi-derogacion">—</div>
+      <div class="kpi amber">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-val" id="kpi-derog">—</div>
+        <div class="kpi-label">Por Derogación</div>
         <div class="kpi-sub">recibidas por DGDFM</div>
       </div>
-    </div>
-
-    <!-- Charts -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-title"><span>📊</span> Cajas por Área ATTRAPI (Top 10)</div>
-        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      <div class="kpi purple">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-val" id="kpi-pct">—</div>
+        <div class="kpi-label">% Transferido</div>
+        <div class="kpi-sub">del total registrado</div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>🥧</span> Distribución por tipo de ingreso</div>
-        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
-      </div>
-      <div class="chart-card full">
-        <div class="chart-title"><span>📈</span> Comparativo: Transferidas vs. Derogación por área</div>
-        <div class="chart-wrap"><canvas id="stackedChart"></canvas></div>
+      <div class="kpi red">
+        <div class="kpi-icon">🔝</div>
+        <div class="kpi-val" id="kpi-max">—</div>
+        <div class="kpi-label">Mayor Concentración</div>
+        <div class="kpi-sub" id="kpi-max-nombre">—</div>
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="table-card">
-      <div class="table-header">
-        <div class="table-title">📋 Detalle de Unidades y Cajas</div>
-        <div class="search-box">
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+      <!-- LEFT: top units -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📊 Top Unidades por Cajas</div>
+          <div class="card-count" id="top-count">—</div>
+        </div>
+        <div class="card-body" id="top-chart"></div>
+      </div>
+
+      <!-- RIGHT: transferidas vs derogacion -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">🔁 Transferidas vs. Derogación (Top 8)</div>
+        </div>
+        <div class="card-body" id="dual-chart"></div>
+      </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="card table-section">
+      <div class="table-toolbar">
+        <div class="card-title">📋 Detalle completo de unidades</div>
+        <div class="search-wrap">
           <input type="text" id="search" placeholder="Buscar unidad o área…" />
         </div>
       </div>
-      <div class="table-wrap">
-        <table id="data-table">
+      <div class="tbl-wrap">
+        <table>
           <thead>
             <tr>
-              <th data-col="0">#</th>
-              <th data-col="1">Unidad ATTRAPI</th>
-              <th data-col="2">Área DGDFM</th>
-              <th data-col="3">Transferidas ↕</th>
-              <th data-col="4">Derogación ↕</th>
-              <th data-col="5">Total ↕</th>
-              <th data-col="5">Proporción</th>
+              <th>#</th>
+              <th data-col="attrapi">Unidad ATTRAPI</th>
+              <th data-col="dgdfm">Área DGDFM</th>
+              <th data-col="transf" class="sorted">Transferidas ↕</th>
+              <th data-col="derog">Derogación ↕</th>
+              <th data-col="total">Total ↕</th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
         </table>
-        <p class="no-results" id="no-results" style="display:none">No se encontraron resultados.</p>
+        <p class="no-results" id="no-results" style="display:none">📭 No se encontraron resultados.</p>
       </div>
     </div>
-  </div>
-</main>
+
+  </div><!-- /dashboard -->
+</div><!-- /wrapper -->
 
 <footer>
-  Datos actualizados automáticamente desde <strong>Google Sheets</strong> · Archivo Institucional ATTRAPI &mdash; DGDFM
+  Datos actualizados en tiempo real desde <strong>Google Sheets</strong> &mdash; Archivo Institucional ATTRAPI · DGDFM &mdash; 2026
 </footer>
 
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRai_ZnyIS24rGGG03IxioUu8Wnys_tAXew0rhMqKGnl3wHdD1D-nVcIi2rYr9lRw/pub?output=csv';
 
-// Chart.js global defaults
-Chart.defaults.color = '#8b90b0';
-Chart.defaults.borderColor = '#2e3350';
-Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
-
 let allRows = [];
-let sortCol = 5;
+let sortCol = 'total';
 let sortDir = -1;
 let maxTotal = 1;
 
-// ── FETCH & PARSE ──────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────
+function toNum(v) {
+  const n = parseInt(String(v || '').replace(/[^\d]/g, ''), 10);
+  return isNaN(n) ? 0 : n;
+}
+function fmt(n) { return n.toLocaleString('es-MX'); }
+function trunc(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+
+// ── FETCH ─────────────────────────────────────────────────────
 async function loadData() {
   try {
     const res = await fetch(CSV_URL);
     const text = await res.text();
-    const parsed = Papa.parse(text, { skipEmptyLines: true });
-    processData(parsed.data);
+    const { data } = Papa.parse(text, { skipEmptyLines: true });
+    processData(data);
   } catch (e) {
     document.getElementById('loader').innerHTML =
-      `<p style="color:#e05252">⚠️ Error al cargar datos. Verifica la conexión o los permisos de la hoja.</p>`;
+      `<p style="color:#ef4444">⚠️ Error al cargar datos. Verifica la conexión o los permisos de la hoja.</p>`;
   }
 }
 
 // ── PROCESS ───────────────────────────────────────────────────
-function toNum(v) {
-  if (!v) return 0;
-  const n = parseInt(String(v).replace(/[^\d]/g, ''), 10);
-  return isNaN(n) ? 0 : n;
-}
-
 function processData(rows) {
-  // Detect header row (first row with text)
-  const header = rows[0];
-  const dataRows = rows.slice(1);
-
   const records = [];
-
-  for (const row of dataRows) {
+  for (const row of rows.slice(1)) {
     const attrapi = (row[0] || '').trim();
     const dgdfm   = (row[1] || '').trim();
     const transf  = toNum(row[2]);
     const derog   = toNum(row[3]);
     const total   = toNum(row[4]);
-
-    // Skip blank or subtotal-looking rows
     if (!attrapi && !dgdfm) continue;
     if (!total && !transf && !derog) continue;
-    // Skip rows that look like grouping labels (no numeric data at all)
-
     records.push({ attrapi: attrapi || dgdfm, dgdfm: dgdfm || '—', transf, derog, total });
   }
 
-  // Sort by total desc to compute maxTotal
   allRows = records.sort((a, b) => b.total - a.total);
   maxTotal = allRows[0]?.total || 1;
 
   renderKPIs(records);
-  renderCharts(records);
+  renderTopChart(records);
+  renderDualChart(records);
   renderTable(allRows);
   setupSearch();
   setupSort();
 
   document.getElementById('loader').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('last-update').innerHTML =
-    `Última actualización: <span>${new Date().toLocaleString('es-MX', {dateStyle:'long', timeStyle:'short'})}</span>`;
+  document.getElementById('last-update').textContent =
+    new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' });
 }
 
 // ── KPIs ──────────────────────────────────────────────────────
-function fmt(n) { return n.toLocaleString('es-MX'); }
-
 function renderKPIs(records) {
   const totalCajas  = records.reduce((s, r) => s + r.total, 0);
   const totalTransf = records.reduce((s, r) => s + r.transf, 0);
   const totalDerog  = records.reduce((s, r) => s + r.derog, 0);
   const unidades    = new Set(records.map(r => r.attrapi)).size;
+  const pct         = totalCajas > 0 ? Math.round((totalTransf / totalCajas) * 100) : 0;
+  const top         = [...records].sort((a, b) => b.total - a.total)[0];
 
-  document.getElementById('kpi-total').textContent       = fmt(totalCajas);
-  document.getElementById('kpi-unidades').textContent    = unidades;
-  document.getElementById('kpi-transferidas').textContent= fmt(totalTransf);
-  document.getElementById('kpi-derogacion').textContent  = fmt(totalDerog);
+  document.getElementById('kpi-total').textContent   = fmt(totalCajas);
+  document.getElementById('kpi-unidades').textContent = unidades;
+  document.getElementById('kpi-transf').textContent  = fmt(totalTransf);
+  document.getElementById('kpi-derog').textContent   = fmt(totalDerog);
+  document.getElementById('kpi-pct').textContent     = pct + '%';
+  document.getElementById('kpi-max').textContent     = top ? fmt(top.total) : '—';
+  document.getElementById('kpi-max-nombre').textContent = top ? trunc(top.attrapi, 22) : '—';
 }
 
-// ── CHARTS ────────────────────────────────────────────────────
-const PALETTE = [
-  '#4f7ef8','#7c5cbf','#2ec4b6','#f4a261',
-  '#e05252','#3dd68c','#f7c59f','#a78bfa',
-  '#60d394','#ffd166',
-];
+// ── TOP CHART ─────────────────────────────────────────────────
+const BAR_COLORS = ['teal','green','amber','purple','blue','teal','green','amber','purple','blue'];
 
-function renderCharts(records) {
-  // Top 10 by total
-  const top10 = [...records].sort((a, b) => b.total - a.total).slice(0, 10);
-  const labels10 = top10.map(r => truncate(r.attrapi, 30));
+function renderTopChart(records) {
+  const top = [...records].sort((a, b) => b.total - a.total).slice(0, 10);
+  document.getElementById('top-count').textContent = `Top ${top.length}`;
 
-  // Bar chart
-  new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: {
-      labels: labels10,
-      datasets: [{
-        label: 'Total cajas',
-        data: top10.map(r => r.total),
-        backgroundColor: PALETTE,
-        borderRadius: 6,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: '#2e3350' } },
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
-      },
-      responsive: true,
-      maintainAspectRatio: true,
-    }
-  });
+  document.getElementById('top-chart').innerHTML = top.map((r, i) => {
+    const pct = Math.round((r.total / maxTotal) * 100);
+    const hero = i === 0 ? ' chart-entry--hero' : '';
+    return `
+    <div class="chart-entry${hero}">
+      <div class="entry-name">${trunc(r.attrapi, 38)}</div>
+      <div class="entry-val">${fmt(r.total)}</div>
+      <div class="bar-track">
+        <div class="bar-fill ${BAR_COLORS[i]}" style="width:${pct}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  // Pie chart — transferidas vs derogacion
-  const totalTransf = records.reduce((s, r) => s + r.transf, 0);
-  const totalDerog  = records.reduce((s, r) => s + r.derog, 0);
-  const sinClasif   = records.reduce((s, r) => s + Math.max(0, r.total - r.transf - r.derog), 0);
-
-  new Chart(document.getElementById('pieChart'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Transferidas', 'Por derogación', 'Sin clasificar'],
-      datasets: [{
-        data: [totalTransf, totalDerog, sinClasif],
-        backgroundColor: ['#4f7ef8', '#f4a261', '#2e3350'],
-        borderColor: '#21253a',
-        borderWidth: 3,
-        hoverOffset: 8,
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } }
-      },
-      cutout: '62%',
-      responsive: true,
-    }
-  });
-
-  // Stacked bar — top 8
+// ── DUAL CHART ────────────────────────────────────────────────
+function renderDualChart(records) {
   const top8 = [...records].sort((a, b) => b.total - a.total).slice(0, 8);
-  new Chart(document.getElementById('stackedChart'), {
-    type: 'bar',
-    data: {
-      labels: top8.map(r => truncate(r.attrapi, 28)),
-      datasets: [
-        {
-          label: 'Transferidas',
-          data: top8.map(r => r.transf),
-          backgroundColor: '#4f7ef8',
-          borderRadius: 4,
-        },
-        {
-          label: 'Por derogación',
-          data: top8.map(r => r.derog),
-          backgroundColor: '#f4a261',
-          borderRadius: 4,
-        }
-      ]
-    },
-    options: {
-      plugins: { legend: { position: 'top' } },
-      scales: {
-        x: { stacked: true, grid: { display: false } },
-        y: { stacked: true, grid: { color: '#2e3350' } }
-      },
-      responsive: true,
-      maintainAspectRatio: true,
-    }
-  });
+  const maxT = Math.max(...top8.map(r => r.transf), 1);
+  const maxD = Math.max(...top8.map(r => r.derog), 1);
+
+  document.getElementById('dual-chart').innerHTML = top8.map(r => {
+    const pT = Math.round((r.transf / maxT) * 100);
+    const pD = Math.round((r.derog  / maxD) * 100);
+    return `
+    <div class="dual-entry">
+      <div class="dual-name">${trunc(r.attrapi, 50)}</div>
+      <div class="dual-bars">
+        <div class="dual-row">
+          <div class="dual-tag">Transferidas</div>
+          <div class="dual-track"><div class="bar-fill teal" style="width:${pT}%"></div></div>
+          <div class="dual-num" style="color:var(--teal-l)">${fmt(r.transf) || '—'}</div>
+        </div>
+        <div class="dual-row">
+          <div class="dual-tag">Derogación</div>
+          <div class="dual-track"><div class="bar-fill amber" style="width:${pD}%"></div></div>
+          <div class="dual-num" style="color:var(--amber)">${fmt(r.derog) || '—'}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── TABLE ─────────────────────────────────────────────────────
 function renderTable(rows) {
-  const tbody = document.getElementById('table-body');
-  const noRes = document.getElementById('no-results');
-
-  if (!rows.length) {
-    tbody.innerHTML = '';
-    noRes.style.display = 'block';
-    return;
-  }
+  const tbody  = document.getElementById('table-body');
+  const noRes  = document.getElementById('no-results');
+  if (!rows.length) { tbody.innerHTML = ''; noRes.style.display = 'block'; return; }
   noRes.style.display = 'none';
-
   tbody.innerHTML = rows.map((r, i) => {
-    const pct = maxTotal > 0 ? Math.round((r.total / maxTotal) * 100) : 0;
+    const pct = Math.round((r.total / maxTotal) * 100);
     return `
     <tr>
-      <td><span class="pill">${i + 1}</span></td>
-      <td>${r.attrapi}</td>
-      <td style="color:var(--muted)">${r.dgdfm}</td>
+      <td><span class="idx-badge">${i + 1}</span></td>
+      <td class="bold">${r.attrapi}</td>
+      <td>${r.dgdfm}</td>
       <td class="num teal">${r.transf ? fmt(r.transf) : '—'}</td>
-      <td class="num orange">${r.derog ? fmt(r.derog) : '—'}</td>
-      <td class="num accent">${fmt(r.total)}</td>
-      <td style="min-width:120px">
-        <div style="font-size:.7rem;color:var(--muted);margin-bottom:2px">${pct}%</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <td class="num amber">${r.derog  ? fmt(r.derog)  : '—'}</td>
+      <td class="num green">
+        ${fmt(r.total)}
+        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
       </td>
     </tr>`;
   }).join('');
@@ -545,11 +659,10 @@ function renderTable(rows) {
 function setupSearch() {
   document.getElementById('search').addEventListener('input', function () {
     const q = this.value.toLowerCase();
-    const filtered = allRows.filter(r =>
-      r.attrapi.toLowerCase().includes(q) ||
-      r.dgdfm.toLowerCase().includes(q)
+    renderTable(q
+      ? allRows.filter(r => r.attrapi.toLowerCase().includes(q) || r.dgdfm.toLowerCase().includes(q))
+      : allRows
     );
-    renderTable(filtered);
   });
 }
 
@@ -557,23 +670,15 @@ function setupSearch() {
 function setupSort() {
   document.querySelectorAll('thead th[data-col]').forEach(th => {
     th.addEventListener('click', () => {
-      const col = +th.dataset.col;
-      if (sortCol === col) sortDir *= -1;
-      else { sortCol = col; sortDir = -1; }
-
+      const col = th.dataset.col;
+      if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
       document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
       th.classList.add('sorted');
-
-      const keys = ['', 'attrapi', 'dgdfm', 'transf', 'derog', 'total'];
-      const key = keys[col];
-      if (!key) return;
-
       allRows.sort((a, b) => {
-        const av = typeof a[key] === 'string' ? a[key].toLowerCase() : a[key];
-        const bv = typeof b[key] === 'string' ? b[key].toLowerCase() : b[key];
+        const av = typeof a[col] === 'string' ? a[col].toLowerCase() : a[col];
+        const bv = typeof b[col] === 'string' ? b[col].toLowerCase() : b[col];
         return av < bv ? sortDir : av > bv ? -sortDir : 0;
       });
-
       const q = document.getElementById('search').value.toLowerCase();
       renderTable(q
         ? allRows.filter(r => r.attrapi.toLowerCase().includes(q) || r.dgdfm.toLowerCase().includes(q))
@@ -581,10 +686,6 @@ function setupSort() {
       );
     });
   });
-}
-
-function truncate(str, n) {
-  return str.length > n ? str.slice(0, n) + '…' : str;
 }
 
 loadData();

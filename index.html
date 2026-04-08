@@ -1,11 +1,593 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archivo Institucional ATTRAPI — Seguimiento de Cajas</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --card: #21253a;
+      --border: #2e3350;
+      --accent: #4f7ef8;
+      --accent2: #7c5cbf;
+      --accent3: #2ec4b6;
+      --accent4: #f4a261;
+      --text: #e8eaf6;
+      --muted: #8b90b0;
+      --danger: #e05252;
+      --success: #3dd68c;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #141728 0%, #1e2240 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .3px; }
+    header p { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+    .badge {
+      margin-left: auto; background: var(--accent); color: #fff;
+      font-size: .72rem; font-weight: 700; padding: .3rem .75rem;
+      border-radius: 20px; letter-spacing: .5px; white-space: nowrap;
+    }
+
+    /* ── LAYOUT ── */
+    main { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* ── LOADER ── */
+    #loader {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1rem; padding: 4rem;
+      color: var(--muted);
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem 1.5rem;
+      position: relative; overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .kpi:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .kpi::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .kpi.blue::before  { background: var(--accent); }
+    .kpi.purple::before { background: var(--accent2); }
+    .kpi.teal::before  { background: var(--accent3); }
+    .kpi.orange::before { background: var(--accent4); }
+
+    .kpi-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: .5rem; }
+    .kpi-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .kpi.blue   .kpi-value { color: var(--accent); }
+    .kpi.purple .kpi-value { color: var(--accent2); }
+    .kpi.teal   .kpi-value { color: var(--accent3); }
+    .kpi.orange .kpi-value { color: var(--accent4); }
+    .kpi-sub { font-size: .78rem; color: var(--muted); margin-top: .4rem; }
+
+    /* ── CHARTS GRID ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; margin-bottom: 2rem;
+    }
+    @media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } }
+
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-title {
+      font-size: .88rem; font-weight: 700; color: var(--text);
+      margin-bottom: 1.2rem; letter-spacing: .3px;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .chart-title span { font-size: 1rem; }
+    .chart-wrap { position: relative; }
+    .chart-wrap canvas { max-height: 280px; }
+
+    /* ── TABLE SECTION ── */
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 1rem; margin-bottom: 1.2rem;
+    }
+    .table-title { font-size: .88rem; font-weight: 700; flex: 1 1 auto; }
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: .82rem;
+      padding: .5rem .9rem .5rem 2.2rem;
+      width: 240px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box::before {
+      content: '🔍';
+      position: absolute; left: .6rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: .78rem;
+      pointer-events: none;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    thead th {
+      background: var(--surface);
+      color: var(--muted);
+      font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .6px;
+      padding: .75rem 1rem; text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { color: var(--accent); }
+    thead th.sorted { color: var(--accent); }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    tbody tr:hover { background: rgba(79,126,248,.07); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: .7rem 1rem; vertical-align: middle; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    td.num.accent { color: var(--accent); }
+    td.num.teal   { color: var(--accent3); }
+    td.num.orange { color: var(--accent4); }
+
+    .pill {
+      display: inline-block;
+      background: rgba(79,126,248,.15);
+      color: var(--accent);
+      border-radius: 20px;
+      font-size: .7rem; font-weight: 700;
+      padding: .2rem .65rem;
+    }
+
+    .progress-bar {
+      height: 6px; background: var(--border);
+      border-radius: 3px; overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .6s ease;
+    }
+
+    .no-results {
+      text-align: center; padding: 3rem;
+      color: var(--muted); font-size: .9rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .75rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+    footer strong { color: var(--text); }
+
+    /* ── LAST UPDATE TAG ── */
+    #last-update {
+      font-size: .72rem; color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    #last-update span { color: var(--accent3); font-weight: 600; }
+  </style>
 </head>
 <body>
-    
+
+<header>
+  <div class="header-icon">📦</div>
+  <div>
+    <h1>Archivo Institucional ATTRAPI</h1>
+    <p>Concentración y seguimiento de cajas transferidas · DGDFM</p>
+  </div>
+  <div class="badge">LIVE DATA</div>
+</header>
+
+<main>
+  <div id="loader">
+    <div class="spinner"></div>
+    <p>Cargando datos desde Google Sheets…</p>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <p id="last-update"></p>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi blue">
+        <div class="kpi-label">Total de Cajas</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-sub">instaladas en archivo</div>
+      </div>
+      <div class="kpi purple">
+        <div class="kpi-label">Unidades ATTRAPI</div>
+        <div class="kpi-value" id="kpi-unidades">—</div>
+        <div class="kpi-sub">áreas registradas</div>
+      </div>
+      <div class="kpi teal">
+        <div class="kpi-label">Cajas Transferidas</div>
+        <div class="kpi-value" id="kpi-transferidas">—</div>
+        <div class="kpi-sub">desde ATTRAPI</div>
+      </div>
+      <div class="kpi orange">
+        <div class="kpi-label">Cajas por Derogación</div>
+        <div class="kpi-value" id="kpi-derogacion">—</div>
+        <div class="kpi-sub">recibidas por DGDFM</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title"><span>📊</span> Cajas por Área ATTRAPI (Top 10)</div>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>🥧</span> Distribución por tipo de ingreso</div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <div class="chart-title"><span>📈</span> Comparativo: Transferidas vs. Derogación por área</div>
+        <div class="chart-wrap"><canvas id="stackedChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">📋 Detalle de Unidades y Cajas</div>
+        <div class="search-box">
+          <input type="text" id="search" placeholder="Buscar unidad o área…" />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th data-col="0">#</th>
+              <th data-col="1">Unidad ATTRAPI</th>
+              <th data-col="2">Área DGDFM</th>
+              <th data-col="3">Transferidas ↕</th>
+              <th data-col="4">Derogación ↕</th>
+              <th data-col="5">Total ↕</th>
+              <th data-col="5">Proporción</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <p class="no-results" id="no-results" style="display:none">No se encontraron resultados.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Datos actualizados automáticamente desde <strong>Google Sheets</strong> · Archivo Institucional ATTRAPI &mdash; DGDFM
+</footer>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRai_ZnyIS24rGGG03IxioUu8Wnys_tAXew0rhMqKGnl3wHdD1D-nVcIi2rYr9lRw/pub?output=csv';
+
+// Chart.js global defaults
+Chart.defaults.color = '#8b90b0';
+Chart.defaults.borderColor = '#2e3350';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+let allRows = [];
+let sortCol = 5;
+let sortDir = -1;
+let maxTotal = 1;
+
+// ── FETCH & PARSE ──────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch(CSV_URL);
+    const text = await res.text();
+    const parsed = Papa.parse(text, { skipEmptyLines: true });
+    processData(parsed.data);
+  } catch (e) {
+    document.getElementById('loader').innerHTML =
+      `<p style="color:#e05252">⚠️ Error al cargar datos. Verifica la conexión o los permisos de la hoja.</p>`;
+  }
+}
+
+// ── PROCESS ───────────────────────────────────────────────────
+function toNum(v) {
+  if (!v) return 0;
+  const n = parseInt(String(v).replace(/[^\d]/g, ''), 10);
+  return isNaN(n) ? 0 : n;
+}
+
+function processData(rows) {
+  // Detect header row (first row with text)
+  const header = rows[0];
+  const dataRows = rows.slice(1);
+
+  const records = [];
+
+  for (const row of dataRows) {
+    const attrapi = (row[0] || '').trim();
+    const dgdfm   = (row[1] || '').trim();
+    const transf  = toNum(row[2]);
+    const derog   = toNum(row[3]);
+    const total   = toNum(row[4]);
+
+    // Skip blank or subtotal-looking rows
+    if (!attrapi && !dgdfm) continue;
+    if (!total && !transf && !derog) continue;
+    // Skip rows that look like grouping labels (no numeric data at all)
+
+    records.push({ attrapi: attrapi || dgdfm, dgdfm: dgdfm || '—', transf, derog, total });
+  }
+
+  // Sort by total desc to compute maxTotal
+  allRows = records.sort((a, b) => b.total - a.total);
+  maxTotal = allRows[0]?.total || 1;
+
+  renderKPIs(records);
+  renderCharts(records);
+  renderTable(allRows);
+  setupSearch();
+  setupSort();
+
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('last-update').innerHTML =
+    `Última actualización: <span>${new Date().toLocaleString('es-MX', {dateStyle:'long', timeStyle:'short'})}</span>`;
+}
+
+// ── KPIs ──────────────────────────────────────────────────────
+function fmt(n) { return n.toLocaleString('es-MX'); }
+
+function renderKPIs(records) {
+  const totalCajas  = records.reduce((s, r) => s + r.total, 0);
+  const totalTransf = records.reduce((s, r) => s + r.transf, 0);
+  const totalDerog  = records.reduce((s, r) => s + r.derog, 0);
+  const unidades    = new Set(records.map(r => r.attrapi)).size;
+
+  document.getElementById('kpi-total').textContent       = fmt(totalCajas);
+  document.getElementById('kpi-unidades').textContent    = unidades;
+  document.getElementById('kpi-transferidas').textContent= fmt(totalTransf);
+  document.getElementById('kpi-derogacion').textContent  = fmt(totalDerog);
+}
+
+// ── CHARTS ────────────────────────────────────────────────────
+const PALETTE = [
+  '#4f7ef8','#7c5cbf','#2ec4b6','#f4a261',
+  '#e05252','#3dd68c','#f7c59f','#a78bfa',
+  '#60d394','#ffd166',
+];
+
+function renderCharts(records) {
+  // Top 10 by total
+  const top10 = [...records].sort((a, b) => b.total - a.total).slice(0, 10);
+  const labels10 = top10.map(r => truncate(r.attrapi, 30));
+
+  // Bar chart
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: labels10,
+      datasets: [{
+        label: 'Total cajas',
+        data: top10.map(r => r.total),
+        backgroundColor: PALETTE,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#2e3350' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      },
+      responsive: true,
+      maintainAspectRatio: true,
+    }
+  });
+
+  // Pie chart — transferidas vs derogacion
+  const totalTransf = records.reduce((s, r) => s + r.transf, 0);
+  const totalDerog  = records.reduce((s, r) => s + r.derog, 0);
+  const sinClasif   = records.reduce((s, r) => s + Math.max(0, r.total - r.transf - r.derog), 0);
+
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Transferidas', 'Por derogación', 'Sin clasificar'],
+      datasets: [{
+        data: [totalTransf, totalDerog, sinClasif],
+        backgroundColor: ['#4f7ef8', '#f4a261', '#2e3350'],
+        borderColor: '#21253a',
+        borderWidth: 3,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } }
+      },
+      cutout: '62%',
+      responsive: true,
+    }
+  });
+
+  // Stacked bar — top 8
+  const top8 = [...records].sort((a, b) => b.total - a.total).slice(0, 8);
+  new Chart(document.getElementById('stackedChart'), {
+    type: 'bar',
+    data: {
+      labels: top8.map(r => truncate(r.attrapi, 28)),
+      datasets: [
+        {
+          label: 'Transferidas',
+          data: top8.map(r => r.transf),
+          backgroundColor: '#4f7ef8',
+          borderRadius: 4,
+        },
+        {
+          label: 'Por derogación',
+          data: top8.map(r => r.derog),
+          backgroundColor: '#f4a261',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, grid: { color: '#2e3350' } }
+      },
+      responsive: true,
+      maintainAspectRatio: true,
+    }
+  });
+}
+
+// ── TABLE ─────────────────────────────────────────────────────
+function renderTable(rows) {
+  const tbody = document.getElementById('table-body');
+  const noRes = document.getElementById('no-results');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    noRes.style.display = 'block';
+    return;
+  }
+  noRes.style.display = 'none';
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const pct = maxTotal > 0 ? Math.round((r.total / maxTotal) * 100) : 0;
+    return `
+    <tr>
+      <td><span class="pill">${i + 1}</span></td>
+      <td>${r.attrapi}</td>
+      <td style="color:var(--muted)">${r.dgdfm}</td>
+      <td class="num teal">${r.transf ? fmt(r.transf) : '—'}</td>
+      <td class="num orange">${r.derog ? fmt(r.derog) : '—'}</td>
+      <td class="num accent">${fmt(r.total)}</td>
+      <td style="min-width:120px">
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:2px">${pct}%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── SEARCH ────────────────────────────────────────────────────
+function setupSearch() {
+  document.getElementById('search').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    const filtered = allRows.filter(r =>
+      r.attrapi.toLowerCase().includes(q) ||
+      r.dgdfm.toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+  });
+}
+
+// ── SORT ──────────────────────────────────────────────────────
+function setupSort() {
+  document.querySelectorAll('thead th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = +th.dataset.col;
+      if (sortCol === col) sortDir *= -1;
+      else { sortCol = col; sortDir = -1; }
+
+      document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+      th.classList.add('sorted');
+
+      const keys = ['', 'attrapi', 'dgdfm', 'transf', 'derog', 'total'];
+      const key = keys[col];
+      if (!key) return;
+
+      allRows.sort((a, b) => {
+        const av = typeof a[key] === 'string' ? a[key].toLowerCase() : a[key];
+        const bv = typeof b[key] === 'string' ? b[key].toLowerCase() : b[key];
+        return av < bv ? sortDir : av > bv ? -sortDir : 0;
+      });
+
+      const q = document.getElementById('search').value.toLowerCase();
+      renderTable(q
+        ? allRows.filter(r => r.attrapi.toLowerCase().includes(q) || r.dgdfm.toLowerCase().includes(q))
+        : allRows
+      );
+    });
+  });
+}
+
+function truncate(str, n) {
+  return str.length > n ? str.slice(0, n) + '…' : str;
+}
+
+loadData();
+</script>
 </body>
 </html>

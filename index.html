@@ -3,687 +3,790 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Archivo Institucional · ATTRAPI</title>
+  <title>ATTRAPI · Archivo de Concentración</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
-    /* ── TOKENS ── */
     :root {
-      --guinda:   #691c32;
-      --guinda-2: #8b2a43;
-      --guinda-3: #541426;
-      --guinda-4: #3e0f1e;
-      --t1: #ffffff;
-      --t2: rgba(243,231,235,.88);
-      --t3: rgba(243,231,235,.52);
-      --t4: rgba(243,231,235,.28);
-      --green:  #22c55e;
-      --amber:  #f59e0b;
-      --red:    #ef4444;
-      --teal:   #14b8a6;
-      --teal-l: #5eead4;
-      --blue:   #3b82f6;
-      --purple: #a855f7;
-      --card-bg: rgba(255,255,255,.055);
-      --card-border: rgba(255,255,255,.1);
-      --card-shadow: 0 18px 40px rgba(0,0,0,.35);
+      --bg:           #faf7f2;
+      --bg-elevated:  #ffffff;
+      --bg-warm:      #f4efe5;
+      --border:       #e6dfd0;
+      --border-strong:#d4cab3;
+      --ink:          #1a1612;
+      --ink-soft:     #4a4036;
+      --ink-muted:    #8a7f70;
+      --accent:       #b8410e;
+      --accent-soft:  #f5e3da;
+      --navy:         #1d3557;
+      --gold:         #c8932b;
+      --sage:         #6b8e5a;
+      --mauve:        #8b5a7c;
+      --shadow-sm:    0 1px 2px rgba(26,22,18,.04);
+      --shadow-md:    0 4px 12px rgba(26,22,18,.07);
     }
 
-    /* ── BASE ── */
     body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--guinda-3);
-      color: var(--t1);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── ANIMATIONS ── */
-    @keyframes up {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: .35; }
-    }
-    @keyframes barGrow {
-      from { width: 0; }
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(184,65,14,.04), transparent),
+        radial-gradient(ellipse 60% 30% at 100% 100%, rgba(29,53,87,.03), transparent);
     }
 
     /* ── TOPBAR ── */
     .topbar {
-      background: linear-gradient(90deg, var(--guinda-4) 0%, var(--guinda-3) 100%);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      padding: .75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(250,247,242,.88);
+      backdrop-filter: blur(10px);
       position: sticky; top: 0; z-index: 100;
-      backdrop-filter: blur(12px);
     }
-    .brand {
-      display: flex; align-items: center; gap: .65rem;
+    .topbar-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 16px 40px;
+      display: flex; align-items: center; gap: 24px;
     }
-    .brand-icon {
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-mark {
       width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--guinda-2), var(--guinda));
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 10px;
+      background: var(--ink); color: var(--bg);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 600; font-size: 19px;
+      border-radius: 2px; flex-shrink: 0;
     }
-    .brand-name {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 800; font-size: 1.05rem;
-      letter-spacing: .5px;
+    .brand-text { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; letter-spacing: -.01em; }
+    .brand-text small {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; font-weight: 400;
+      color: var(--ink-muted);
+      text-transform: uppercase; letter-spacing: .08em; margin-top: 2px;
     }
-    .brand-sub {
-      font-size: .68rem; color: var(--t3);
-      letter-spacing: .3px; margin-top: 1px;
+    .nav-tabs { display: flex; gap: 2px; margin-left: 32px; }
+    .nav-tabs button {
+      background: none; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      color: var(--ink-soft); padding: 7px 14px; border-radius: 6px;
+      cursor: pointer; transition: all .2s;
     }
-
-    .topbar-pills { display: flex; gap: .5rem; margin-left: auto; align-items: center; }
-    .pill {
-      display: flex; align-items: center; gap: .35rem;
-      font-size: .68rem; font-weight: 700; letter-spacing: .6px;
-      padding: .28rem .7rem; border-radius: 20px;
-      text-transform: uppercase;
-    }
-    .pill-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    .pill.live    { background: rgba(34,197,94,.15);  color: var(--green); border: 1px solid rgba(34,197,94,.3); }
-    .pill.live .pill-dot { background: var(--green); }
-    .pill.proceso { background: rgba(245,158,11,.15); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
-    .pill.proceso .pill-dot { background: var(--amber); }
-
-    /* ── PAGE HEADER ── */
-    .page-header {
-      padding: 2rem 1.5rem 1.2rem;
-      animation: up .45s ease both;
-    }
-    .page-header h1 {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 900; font-size: clamp(1.4rem, 3vw, 2rem);
-      line-height: 1.15;
-    }
-    .page-header h1 span { color: var(--teal-l); }
-    .page-header p {
-      color: var(--t3); font-size: .82rem; margin-top: .4rem;
-    }
-    #last-update { color: var(--teal-l); font-weight: 600; }
-
-    /* ── MAIN WRAPPER ── */
-    .wrapper { max-width: 1320px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+    .nav-tabs button:hover { background: var(--bg-warm); color: var(--ink); }
+    .nav-tabs button.active { background: var(--ink); color: var(--bg); }
+    .topbar-right { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-muted); letter-spacing: .06em; text-transform: uppercase; }
 
     /* ── LOADER ── */
     #loader {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 1rem; padding: 5rem 2rem;
-      color: var(--t3);
+      max-width: 1400px; margin: 0 auto;
+      padding: 120px 40px;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      color: var(--ink-muted); font-size: 13px;
     }
-    .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(255,255,255,.1);
-      border-top-color: var(--teal);
+    .loader-ring {
+      width: 36px; height: 36px;
+      border: 2px solid var(--border-strong);
+      border-top-color: var(--accent);
       border-radius: 50%;
-      animation: spin .7s linear infinite;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 1400px; margin: 0 auto;
+      padding: 64px 40px 48px;
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 60px;
+      align-items: end;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 500; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--ink-muted);
+      padding-bottom: 14px; border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(38px, 5vw, 68px);
+      font-weight: 400; line-height: .96; letter-spacing: -.025em; color: var(--ink);
+    }
+    .hero h1 em { font-style: italic; font-weight: 300; color: var(--accent); }
+    .hero-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.65; max-width: 360px; margin-top: 22px; }
+    .hero-desc strong { color: var(--ink); font-weight: 600; }
+    .hero-stats { display: flex; flex-direction: column; gap: 20px; }
+    .hero-stat-item { border-top: 1px solid var(--border); padding-top: 18px; }
+    .hero-stat-num { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 400; letter-spacing: -.02em; }
+    .hero-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-muted); margin-top: 2px; }
+
+    /* ── KPIs ── */
+    .kpis-wrap { max-width: 1400px; margin: 0 auto; padding: 0 40px 56px; }
+    .kpis {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .kpi { background: var(--bg-elevated); padding: 28px 26px; transition: background .25s; }
+    .kpi:hover { background: var(--bg-warm); }
+    .kpi-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-muted); margin-bottom: 12px; }
+    .kpi-value {
+      font-family: 'Fraunces', serif;
+      font-size: 40px; font-weight: 400; line-height: 1; letter-spacing: -.02em; color: var(--ink);
+    }
+    .kpi-value sup { font-size: 13px; color: var(--ink-muted); font-weight: 400; vertical-align: top; top: .55em; position: relative; margin-left: 3px; }
+    .kpi-meta { font-size: 11px; color: var(--ink-muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .kpi-meta span { color: var(--accent); font-weight: 500; }
+
+    /* ── PANELS ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeUp .35s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── SECTION ── */
+    section.panel {
+      max-width: 1400px; margin: 0 auto 56px; padding: 0 40px;
+    }
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 26px; gap: 16px;
+      border-bottom: 1px solid var(--border); padding-bottom: 16px;
+    }
+    .section-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 500; letter-spacing: -.015em; }
+    .section-sub { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+    .toggle-group {
+      display: inline-flex;
+      background: var(--bg-warm); border: 1px solid var(--border);
+      border-radius: 6px; padding: 3px; gap: 2px;
+    }
+    .toggle-group button {
+      background: none; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+      color: var(--ink-soft); padding: 5px 12px; border-radius: 4px;
+      cursor: pointer; transition: all .2s;
+    }
+    .toggle-group button.active {
+      background: var(--bg-elevated); color: var(--ink); box-shadow: var(--shadow-sm);
     }
 
-    /* ── KPI GRID ── */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: .85rem;
-      margin-bottom: 1.5rem;
-      animation: up .45s .05s ease both;
-    }
-    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3,1fr); } }
-    @media (max-width: 640px)  { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-
-    .kpi {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 1.1rem 1.2rem;
-      position: relative; overflow: hidden;
-      transition: filter .2s;
-      cursor: default;
-    }
-    .kpi:hover { filter: brightness(1.06); }
-    .kpi::before {
-      content: ''; position: absolute;
-      left: 0; top: 0; bottom: 0; width: 3px;
-      border-radius: 14px 0 0 14px;
-    }
-    .kpi.teal::before   { background: var(--teal); }
-    .kpi.green::before  { background: var(--green); }
-    .kpi.amber::before  { background: var(--amber); }
-    .kpi.purple::before { background: var(--purple); }
-    .kpi.blue::before   { background: var(--blue); }
-    .kpi.red::before    { background: var(--red); }
-
-    .kpi-icon { font-size: 1.3rem; margin-bottom: .5rem; }
-    .kpi-val {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 900; font-size: 1.9rem;
-      line-height: 1; margin-bottom: .2rem;
-    }
-    .kpi.teal   .kpi-val { color: var(--teal-l); }
-    .kpi.green  .kpi-val { color: var(--green); }
-    .kpi.amber  .kpi-val { color: var(--amber); }
-    .kpi.purple .kpi-val { color: var(--purple); }
-    .kpi.blue   .kpi-val { color: #93c5fd; }
-    .kpi.red    .kpi-val { color: #fca5a5; }
-
-    .kpi-label { font-size: .7rem; color: var(--t3); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
-    .kpi-sub   { font-size: .7rem; color: var(--t4); margin-top: .3rem; }
-
-    /* ── MAIN GRID ── */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 1.25rem;
-    }
-    @media (max-width: 960px) { .main-grid { grid-template-columns: 1fr; } }
+    /* ── GRID ── */
+    .grid-2   { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+    .grid-2-eq{ display: grid; grid-template-columns: 1fr 1fr;   gap: 20px; }
 
     /* ── CARD ── */
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      box-shadow: var(--card-shadow);
-      overflow: hidden;
-      animation: up .45s .1s ease both;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 26px;
+      box-shadow: var(--shadow-sm);
     }
-    .card-head {
-      padding: 1.1rem 1.3rem .8rem;
-      border-bottom: 1px solid rgba(255,255,255,.07);
+    .card-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+    .card-sub   { font-size: 11px; color: var(--ink-muted); margin-bottom: 22px; text-transform: uppercase; letter-spacing: .06em; }
+    .chart-wrap { position: relative; }
+    .chart-wrap.h-280 canvas { max-height: 280px; }
+    .chart-wrap.h-320 canvas { max-height: 320px; }
+    .chart-wrap.h-360 canvas { max-height: 360px; }
+    .chart-wrap.h-200 canvas { max-height: 200px; }
+
+    /* ── TABLE ── */
+    .tbl-toolbar {
       display: flex; align-items: center; justify-content: space-between;
-      gap: .5rem;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 0;
     }
-    .card-title {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 700; font-size: .9rem;
-      display: flex; align-items: center; gap: .45rem;
+    .search-box {
+      background: var(--bg-warm); border: 1px solid var(--border);
+      border-radius: 6px; padding: 9px 14px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink);
+      width: 230px; outline: none; transition: all .2s;
     }
-    .card-count {
-      font-family: 'Outfit', sans-serif;
-      font-size: .78rem; font-weight: 700;
-      color: var(--teal-l);
-      background: rgba(20,184,166,.12);
-      border: 1px solid rgba(20,184,166,.25);
-      padding: .18rem .6rem; border-radius: 20px;
-    }
-    .card-body { padding: 1rem 1.3rem 1.3rem; }
+    .search-box::placeholder { color: var(--ink-muted); }
+    .search-box:focus { background: var(--bg-elevated); border-color: var(--ink-muted); }
 
-    /* ── CHART ENTRIES (CSS bars) ── */
-    .chart-entry {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: .3rem .8rem;
-      align-items: center;
-      padding: .55rem 0;
-      border-bottom: 1px solid rgba(255,255,255,.05);
-    }
-    .chart-entry:last-child { border-bottom: none; }
-    .chart-entry--hero .entry-name { color: var(--teal-l); font-weight: 700; }
-
-    .entry-name {
-      font-size: .78rem; color: var(--t2);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      grid-column: 1; grid-row: 1;
-    }
-    .entry-val {
-      font-family: 'Outfit', sans-serif;
-      font-size: .85rem; font-weight: 800;
-      color: var(--t1); text-align: right;
-      grid-column: 2; grid-row: 1 / 3;
-      align-self: center;
-    }
-    .bar-track {
-      grid-column: 1; grid-row: 2;
-      height: 5px; background: rgba(255,255,255,.08);
-      border-radius: 3px; overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%; border-radius: 3px;
-      animation: barGrow .7s ease both;
-    }
-    .bar-fill.teal   { background: linear-gradient(90deg, var(--teal), var(--teal-l)); }
-    .bar-fill.green  { background: linear-gradient(90deg, #16a34a, var(--green)); }
-    .bar-fill.amber  { background: linear-gradient(90deg, #d97706, var(--amber)); }
-    .bar-fill.purple { background: linear-gradient(90deg, #7e22ce, var(--purple)); }
-    .bar-fill.blue   { background: linear-gradient(90deg, #1d4ed8, var(--blue)); }
-
-    /* ── DUAL BAR ── */
-    .dual-entry {
-      padding: .65rem 0;
-      border-bottom: 1px solid rgba(255,255,255,.05);
-    }
-    .dual-entry:last-child { border-bottom: none; }
-    .dual-name {
-      font-size: .76rem; color: var(--t2);
-      margin-bottom: .45rem;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .dual-bars { display: flex; flex-direction: column; gap: .3rem; }
-    .dual-row { display: flex; align-items: center; gap: .6rem; }
-    .dual-tag { font-size: .62rem; color: var(--t3); width: 70px; flex-shrink: 0; font-weight: 600; letter-spacing: .3px; }
-    .dual-track { flex: 1; height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
-    .dual-num { font-family: 'Outfit', sans-serif; font-size: .78rem; font-weight: 800; width: 42px; text-align: right; flex-shrink: 0; }
-
-    /* ── TABLE SECTION ── */
-    .table-section {
-      margin-top: 1.25rem;
-      animation: up .45s .15s ease both;
-    }
-    .table-toolbar {
-      display: flex; align-items: center; flex-wrap: wrap;
-      gap: .75rem; padding: 1rem 1.3rem;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-    }
-    .table-toolbar .card-title { flex: 1; }
-    .search-wrap { position: relative; }
-    .search-wrap input {
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 8px;
-      color: var(--t1);
-      font-family: 'Inter', sans-serif;
-      font-size: .78rem;
-      padding: .45rem .85rem .45rem 2rem;
-      width: 220px;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .search-wrap input::placeholder { color: var(--t4); }
-    .search-wrap input:focus { border-color: var(--teal); }
-    .search-wrap::before {
-      content: '⌕'; position: absolute;
-      left: .55rem; top: 50%; transform: translateY(-50%);
-      font-size: 1rem; color: var(--t3); pointer-events: none;
-    }
-
-    .tbl-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .tbl-wrap { overflow-x: auto; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th {
-      background: rgba(0,0,0,.25);
-      color: var(--t3); font-size: .65rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .7px;
-      padding: .65rem 1rem; text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-      white-space: nowrap; cursor: pointer; user-select: none;
+      text-align: left; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em; color: var(--ink-muted);
+      padding: 10px 14px; border-bottom: 1px solid var(--border-strong);
+      cursor: pointer; user-select: none; white-space: nowrap;
     }
-    thead th:hover { color: var(--teal-l); }
-    thead th.sorted { color: var(--teal-l); }
-    tbody tr {
-      border-bottom: 1px solid rgba(255,255,255,.05);
-      transition: background .15s;
+    thead th:hover { color: var(--ink); }
+    thead th.sorted { color: var(--accent); }
+    th.num, td.num {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: "tnum";
     }
-    tbody tr:hover { background: rgba(255,255,255,.04); }
-    tbody tr:last-child { border-bottom: none; }
-    td { padding: .65rem 1rem; vertical-align: middle; color: var(--t2); }
-    td.bold { color: var(--t1); font-weight: 600; }
-    td.num {
-      text-align: right; font-family: 'Outfit', sans-serif;
-      font-weight: 700; font-variant-numeric: tabular-nums;
+    tbody td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      color: var(--ink-soft);
     }
-    td.num.teal   { color: var(--teal-l); }
-    td.num.amber  { color: var(--amber); }
-    td.num.green  { color: var(--green); }
-
-    .idx-badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 22px; height: 22px; border-radius: 6px;
-      background: rgba(255,255,255,.07);
-      font-size: .68rem; font-weight: 700; color: var(--t3);
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--bg-warm); }
+    tr.total-row td {
+      background: var(--ink); color: var(--bg);
+      font-weight: 600; border-bottom: none;
+      font-family: 'JetBrains Mono', monospace;
     }
-
-    .mini-bar-track {
-      height: 4px; background: rgba(255,255,255,.08);
-      border-radius: 3px; overflow: hidden; margin-top: 3px;
+    tr.total-row:hover td { background: var(--ink-soft); }
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .05em;
+      padding: 2px 7px; border-radius: 3px;
     }
-    .mini-bar-fill {
-      height: 100%; border-radius: 3px;
-      background: linear-gradient(90deg, var(--teal), var(--teal-l));
-      animation: barGrow .7s ease both;
-    }
-
-    .no-results {
-      text-align: center; padding: 3rem;
-      color: var(--t3); font-size: .85rem;
-    }
+    .badge.transf { background: var(--accent-soft); color: var(--accent); }
+    .badge.derog  { background: #e8eef5; color: var(--navy); }
+    .no-results { text-align: center; padding: 40px; color: var(--ink-muted); font-size: 13px; }
 
     /* ── FOOTER ── */
     footer {
-      text-align: center; padding: 2rem 1.5rem;
-      color: var(--t4); font-size: .72rem;
-      border-top: 1px solid rgba(255,255,255,.06);
-      margin-top: 1rem;
+      max-width: 1400px; margin: 60px auto 0;
+      padding: 36px 40px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--ink-muted);
     }
-    footer strong { color: var(--t2); }
+    .foot-brand { font-family: 'Fraunces', serif; font-size: 14px; color: var(--ink-soft); }
 
-    /* ── EMPTY STATE ── */
-    .empty-chart { text-align: center; padding: 2rem 1rem; color: var(--t3); font-size: .82rem; }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .topbar-inner { padding: 14px 20px; flex-wrap: wrap; }
+      .nav-tabs { order: 3; width: 100%; overflow-x: auto; margin-left: 0; }
+      .hero { grid-template-columns: 1fr; gap: 32px; padding: 44px 20px 32px; }
+      .kpis-wrap { padding: 0 20px 40px; }
+      .kpis { grid-template-columns: repeat(2,1fr); }
+      section.panel { padding: 0 20px; }
+      .grid-2, .grid-2-eq { grid-template-columns: 1fr; }
+      footer { padding: 28px 20px; flex-direction: column; gap: 10px; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .kpis { grid-template-columns: 1fr; }
+      .kpi-value { font-size: 32px; }
+      .hero h1 { font-size: 36px; }
+    }
   </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="brand">
-    <div class="brand-icon">📦</div>
-    <div>
-      <div class="brand-name">ATTRAPI</div>
-      <div class="brand-sub">Archivo Institucional · DGDFM</div>
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div class="brand-text">
+        ATTRAPI
+        <small>Archivo de Concentración</small>
+      </div>
     </div>
-  </div>
-  <div class="topbar-pills">
-    <div class="pill live"><div class="pill-dot"></div>Live</div>
-    <div class="pill proceso"><div class="pill-dot"></div>En proceso</div>
+    <nav class="nav-tabs">
+      <button class="active" data-tab="resumen">Resumen</button>
+      <button data-tab="unidades">Unidades</button>
+      <button data-tab="proyeccion">Proyección</button>
+    </nav>
+    <div class="topbar-right" id="topbar-date">ACT · —</div>
   </div>
 </div>
 
-<!-- PAGE HEADER -->
-<div class="wrapper">
-  <div class="page-header">
-    <h1>Concentración de <span>Archivo Institucional</span></h1>
-    <p>Seguimiento de transferencias · Unidades extintas ATTRAPI → DGDFM &nbsp;·&nbsp; <span id="last-update">Cargando…</span></p>
-  </div>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <p>Cargando datos desde Google Sheets…</p>
+</div>
 
-  <!-- LOADER -->
-  <div id="loader">
-    <div class="spinner"></div>
-    <p>Cargando datos desde Google Sheets…</p>
-  </div>
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none">
 
-  <!-- DASHBOARD (hidden until data loads) -->
-  <div id="dashboard" style="display:none">
-
-    <!-- KPIs -->
-    <div class="kpi-grid" id="kpi-grid">
-      <div class="kpi teal">
-        <div class="kpi-icon">📦</div>
-        <div class="kpi-val" id="kpi-total">—</div>
-        <div class="kpi-label">Total de Cajas</div>
-        <div class="kpi-sub">en archivo institucional</div>
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-tag">DGDFM · Programa de Regularización 2025–2026</div>
+      <h1>Estado del <em>archivo</em><br>de concentración</h1>
+      <p class="hero-desc">
+        Seguimiento del acervo documental de la <strong>Agencia Reguladora del Transporte Ferroviario (ATTRAPI)</strong>
+        transferido a la DGDFM. Datos actualizados en tiempo real desde la hoja de concentración oficial.
+      </p>
+    </div>
+    <div class="hero-stats" id="hero-stats">
+      <div class="hero-stat-item">
+        <div class="hero-stat-num" id="hs-total">—</div>
+        <div class="hero-stat-label">Cajas totales en archivo</div>
       </div>
-      <div class="kpi green">
-        <div class="kpi-icon">🏢</div>
-        <div class="kpi-val" id="kpi-unidades">—</div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num" id="hs-unidades">—</div>
+        <div class="hero-stat-label">Unidades ATTRAPI registradas</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num" id="hs-pct">—%</div>
+        <div class="hero-stat-label">Porcentaje transferido</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis-wrap">
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-label">Cajas Instaladas</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-meta">Total en archivo institucional</div>
+      </div>
+      <div class="kpi">
         <div class="kpi-label">Unidades ATTRAPI</div>
-        <div class="kpi-sub">áreas con registro</div>
+        <div class="kpi-value" id="kpi-unidades">—</div>
+        <div class="kpi-meta">Áreas con documentación registrada</div>
       </div>
-      <div class="kpi blue">
-        <div class="kpi-icon">🔁</div>
-        <div class="kpi-val" id="kpi-transf">—</div>
-        <div class="kpi-label">Transferidas</div>
-        <div class="kpi-sub">desde ATTRAPI</div>
+      <div class="kpi">
+        <div class="kpi-label">Transferencias</div>
+        <div class="kpi-value" id="kpi-transf">—</div>
+        <div class="kpi-meta"><span>Cajas</span> recibidas directamente</div>
       </div>
-      <div class="kpi amber">
-        <div class="kpi-icon">📋</div>
-        <div class="kpi-val" id="kpi-derog">—</div>
+      <div class="kpi">
         <div class="kpi-label">Por Derogación</div>
-        <div class="kpi-sub">recibidas por DGDFM</div>
-      </div>
-      <div class="kpi purple">
-        <div class="kpi-icon">📊</div>
-        <div class="kpi-val" id="kpi-pct">—</div>
-        <div class="kpi-label">% Transferido</div>
-        <div class="kpi-sub">del total registrado</div>
-      </div>
-      <div class="kpi red">
-        <div class="kpi-icon">🔝</div>
-        <div class="kpi-val" id="kpi-max">—</div>
-        <div class="kpi-label">Mayor Concentración</div>
-        <div class="kpi-sub" id="kpi-max-nombre">—</div>
+        <div class="kpi-value" id="kpi-derog">—</div>
+        <div class="kpi-meta">Cajas recibidas de DGDFM</div>
       </div>
     </div>
+  </div>
 
-    <!-- MAIN GRID -->
-    <div class="main-grid">
+  <!-- ═══════════ TAB: RESUMEN ═══════════ -->
+  <div class="tab-panel active" id="tab-resumen">
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Distribución general</div>
+          <div class="section-sub">Vista consolidada del acervo por unidad administrativa</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Distribución por tipo de ingreso</div>
+          <div class="card-sub">Transferidas vs. Derogación vs. Sin clasificar</div>
+          <div class="chart-wrap h-280"><canvas id="chartDonut"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cajas por unidad ATTRAPI</div>
+          <div class="card-sub">Top 10 unidades por volumen total</div>
+          <div class="chart-wrap h-280"><canvas id="chartBarUnidades"></canvas></div>
+        </div>
+      </div>
+    </section>
 
-      <!-- LEFT: top units -->
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Comparativo transferencias</div>
+          <div class="section-sub">Cajas transferidas vs. por derogación — top 8 unidades</div>
+        </div>
+      </div>
       <div class="card">
-        <div class="card-head">
-          <div class="card-title">📊 Top Unidades por Cajas</div>
-          <div class="card-count" id="top-count">—</div>
-        </div>
-        <div class="card-body" id="top-chart"></div>
+        <div class="chart-wrap h-320"><canvas id="chartStacked"></canvas></div>
       </div>
+    </section>
+  </div>
 
-      <!-- RIGHT: transferidas vs derogacion -->
+  <!-- ═══════════ TAB: UNIDADES ═══════════ -->
+  <div class="tab-panel" id="tab-unidades">
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Detalle por unidad</div>
+          <div class="section-sub">Todas las unidades ATTRAPI con sus volúmenes documentales</div>
+        </div>
+      </div>
       <div class="card">
-        <div class="card-head">
-          <div class="card-title">🔁 Transferidas vs. Derogación (Top 8)</div>
+        <div class="tbl-toolbar">
+          <div style="font-size:13px;color:var(--ink-soft)" id="tbl-count">— registros</div>
+          <input class="search-box" id="search" type="text" placeholder="Buscar unidad o área DGDFM…" />
         </div>
-        <div class="card-body" id="dual-chart"></div>
-      </div>
-
-    </div>
-
-    <!-- TABLE -->
-    <div class="card table-section">
-      <div class="table-toolbar">
-        <div class="card-title">📋 Detalle completo de unidades</div>
-        <div class="search-wrap">
-          <input type="text" id="search" placeholder="Buscar unidad o área…" />
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px">#</th>
+                <th data-col="attrapi">Unidad ATTRAPI</th>
+                <th data-col="dgdfm">Área DGDFM</th>
+                <th class="num" data-col="transf">Transferidas ↕</th>
+                <th class="num" data-col="derog">Derogación ↕</th>
+                <th class="num" data-col="total">Total ↕</th>
+                <th>Tipo predominante</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-body"></tbody>
+          </table>
+          <p class="no-results" id="no-results" style="display:none">Sin resultados para esa búsqueda.</p>
         </div>
       </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th data-col="attrapi">Unidad ATTRAPI</th>
-              <th data-col="dgdfm">Área DGDFM</th>
-              <th data-col="transf" class="sorted">Transferidas ↕</th>
-              <th data-col="derog">Derogación ↕</th>
-              <th data-col="total">Total ↕</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-        <p class="no-results" id="no-results" style="display:none">📭 No se encontraron resultados.</p>
-      </div>
-    </div>
+    </section>
+  </div>
 
-  </div><!-- /dashboard -->
-</div><!-- /wrapper -->
+  <!-- ═══════════ TAB: PROYECCIÓN ═══════════ -->
+  <div class="tab-panel" id="tab-proyeccion">
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Proyección 2025–2029</div>
+          <div class="section-sub">Estimación de crecimiento del acervo basada en transferencias actuales</div>
+        </div>
+        <div class="toggle-group" id="toggle-proj">
+          <button class="active" data-view="acumulado">Acumulado</button>
+          <button data-view="anual">Entradas anuales</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Crecimiento total del archivo</div>
+        <div class="card-sub">Cajas proyectadas por año</div>
+        <div class="chart-wrap h-360"><canvas id="chartProyeccion"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tabla de proyección anual</div>
+        <div class="card-sub">Estimación basada en ritmo de transferencia actual</div>
+        <div class="tbl-wrap">
+          <table id="tbl-proyeccion">
+            <thead>
+              <tr>
+                <th>Año</th>
+                <th class="num">Cajas nuevas</th>
+                <th class="num">Total acumulado</th>
+                <th class="num">Crecimiento %</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-proj-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</div><!-- /main-content -->
 
 <footer>
-  Datos actualizados en tiempo real desde <strong>Google Sheets</strong> &mdash; Archivo Institucional ATTRAPI · DGDFM &mdash; 2026
+  <div class="foot-brand">ATTRAPI · Archivo de Concentración</div>
+  <div>Datos: Google Sheets — hoja de concentración oficial &nbsp;·&nbsp; <span id="footer-date">—</span></div>
 </footer>
 
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRai_ZnyIS24rGGG03IxioUu8Wnys_tAXew0rhMqKGnl3wHdD1D-nVcIi2rYr9lRw/pub?output=csv';
 
-let allRows = [];
-let sortCol = 'total';
-let sortDir = -1;
-let maxTotal = 1;
+const PALETTE = ['#b8410e','#1d3557','#6b8e5a','#c8932b','#8b5a7c','#2a7f7f','#c05050'];
 
-// ── HELPERS ──────────────────────────────────────────────────
-function toNum(v) {
-  const n = parseInt(String(v || '').replace(/[^\d]/g, ''), 10);
-  return isNaN(n) ? 0 : n;
-}
-function fmt(n) { return n.toLocaleString('es-MX'); }
-function trunc(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#8a7f70';
+Chart.defaults.borderColor = '#e6dfd0';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1a1612';
+Chart.defaults.plugins.tooltip.titleFont = { family: "'Fraunces', serif", size: 14, weight: '500' };
+Chart.defaults.plugins.tooltip.bodyFont  = { family: "'DM Sans', sans-serif", size: 12 };
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 4;
 
-// ── FETCH ─────────────────────────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────────
+let allRows = [], sortCol = 'total', sortDir = -1, maxTotal = 1;
+let projChart = null, projView = 'acumulado';
+
+// ── HELPERS ──────────────────────────────────────────────────────
+const toNum = v => { const n = parseInt(String(v||'').replace(/[^\d]/g,''),10); return isNaN(n)?0:n; };
+const fmt   = n => n.toLocaleString('es-MX');
+const fmtK  = n => n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n);
+const trunc = (s,n) => s.length > n ? s.slice(0,n)+'…' : s;
+
+// ── FETCH ────────────────────────────────────────────────────────
 async function loadData() {
   try {
-    const res = await fetch(CSV_URL);
+    const res  = await fetch(CSV_URL);
     const text = await res.text();
     const { data } = Papa.parse(text, { skipEmptyLines: true });
     processData(data);
-  } catch (e) {
+  } catch {
     document.getElementById('loader').innerHTML =
-      `<p style="color:#ef4444">⚠️ Error al cargar datos. Verifica la conexión o los permisos de la hoja.</p>`;
+      '<p style="color:#b8410e;font-size:14px">⚠ Error al cargar los datos. Verifica la URL de la hoja.</p>';
   }
 }
 
-// ── PROCESS ───────────────────────────────────────────────────
+// ── PROCESS ──────────────────────────────────────────────────────
 function processData(rows) {
   const records = [];
   for (const row of rows.slice(1)) {
-    const attrapi = (row[0] || '').trim();
-    const dgdfm   = (row[1] || '').trim();
+    const attrapi = (row[0]||'').trim();
+    const dgdfm   = (row[1]||'').trim();
     const transf  = toNum(row[2]);
     const derog   = toNum(row[3]);
     const total   = toNum(row[4]);
     if (!attrapi && !dgdfm) continue;
     if (!total && !transf && !derog) continue;
-    records.push({ attrapi: attrapi || dgdfm, dgdfm: dgdfm || '—', transf, derog, total });
+    records.push({ attrapi: attrapi||dgdfm, dgdfm: dgdfm||'—', transf, derog, total });
   }
 
-  allRows = records.sort((a, b) => b.total - a.total);
+  allRows  = records.sort((a,b) => b.total - a.total);
   maxTotal = allRows[0]?.total || 1;
 
+  const now = new Date().toLocaleString('es-MX', { dateStyle:'long', timeStyle:'short' });
+  document.getElementById('topbar-date').textContent = 'ACT · ABR 2026';
+  document.getElementById('footer-date').textContent  = now;
+
+  renderHero(records);
   renderKPIs(records);
-  renderTopChart(records);
-  renderDualChart(records);
+  renderChartDonut(records);
+  renderChartBarUnidades(records);
+  renderChartStacked(records);
   renderTable(allRows);
+  renderProyeccion(records);
+
+  document.getElementById('loader').style.display        = 'none';
+  document.getElementById('main-content').style.display  = 'block';
+
+  setupTabs();
   setupSearch();
   setupSort();
-
-  document.getElementById('loader').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('last-update').textContent =
-    new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' });
+  setupProjToggle();
 }
 
-// ── KPIs ──────────────────────────────────────────────────────
+// ── HERO ─────────────────────────────────────────────────────────
+function renderHero(records) {
+  const total    = records.reduce((s,r)=>s+r.total,0);
+  const transf   = records.reduce((s,r)=>s+r.transf,0);
+  const unidades = new Set(records.map(r=>r.attrapi)).size;
+  const pct      = total > 0 ? Math.round((transf/total)*100) : 0;
+  document.getElementById('hs-total').textContent    = fmt(total);
+  document.getElementById('hs-unidades').textContent = unidades;
+  document.getElementById('hs-pct').textContent      = pct + '%';
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────
 function renderKPIs(records) {
-  const totalCajas  = records.reduce((s, r) => s + r.total, 0);
-  const totalTransf = records.reduce((s, r) => s + r.transf, 0);
-  const totalDerog  = records.reduce((s, r) => s + r.derog, 0);
-  const unidades    = new Set(records.map(r => r.attrapi)).size;
-  const pct         = totalCajas > 0 ? Math.round((totalTransf / totalCajas) * 100) : 0;
-  const top         = [...records].sort((a, b) => b.total - a.total)[0];
-
-  document.getElementById('kpi-total').textContent   = fmt(totalCajas);
+  const total    = records.reduce((s,r)=>s+r.total,0);
+  const transf   = records.reduce((s,r)=>s+r.transf,0);
+  const derog    = records.reduce((s,r)=>s+r.derog,0);
+  const unidades = new Set(records.map(r=>r.attrapi)).size;
+  document.getElementById('kpi-total').textContent    = fmt(total);
   document.getElementById('kpi-unidades').textContent = unidades;
-  document.getElementById('kpi-transf').textContent  = fmt(totalTransf);
-  document.getElementById('kpi-derog').textContent   = fmt(totalDerog);
-  document.getElementById('kpi-pct').textContent     = pct + '%';
-  document.getElementById('kpi-max').textContent     = top ? fmt(top.total) : '—';
-  document.getElementById('kpi-max-nombre').textContent = top ? trunc(top.attrapi, 22) : '—';
+  document.getElementById('kpi-transf').textContent   = fmt(transf);
+  document.getElementById('kpi-derog').textContent    = fmt(derog);
 }
 
-// ── TOP CHART ─────────────────────────────────────────────────
-const BAR_COLORS = ['teal','green','amber','purple','blue','teal','green','amber','purple','blue'];
-
-function renderTopChart(records) {
-  const top = [...records].sort((a, b) => b.total - a.total).slice(0, 10);
-  document.getElementById('top-count').textContent = `Top ${top.length}`;
-
-  document.getElementById('top-chart').innerHTML = top.map((r, i) => {
-    const pct = Math.round((r.total / maxTotal) * 100);
-    const hero = i === 0 ? ' chart-entry--hero' : '';
-    return `
-    <div class="chart-entry${hero}">
-      <div class="entry-name">${trunc(r.attrapi, 38)}</div>
-      <div class="entry-val">${fmt(r.total)}</div>
-      <div class="bar-track">
-        <div class="bar-fill ${BAR_COLORS[i]}" style="width:${pct}%"></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── DUAL CHART ────────────────────────────────────────────────
-function renderDualChart(records) {
-  const top8 = [...records].sort((a, b) => b.total - a.total).slice(0, 8);
-  const maxT = Math.max(...top8.map(r => r.transf), 1);
-  const maxD = Math.max(...top8.map(r => r.derog), 1);
-
-  document.getElementById('dual-chart').innerHTML = top8.map(r => {
-    const pT = Math.round((r.transf / maxT) * 100);
-    const pD = Math.round((r.derog  / maxD) * 100);
-    return `
-    <div class="dual-entry">
-      <div class="dual-name">${trunc(r.attrapi, 50)}</div>
-      <div class="dual-bars">
-        <div class="dual-row">
-          <div class="dual-tag">Transferidas</div>
-          <div class="dual-track"><div class="bar-fill teal" style="width:${pT}%"></div></div>
-          <div class="dual-num" style="color:var(--teal-l)">${fmt(r.transf) || '—'}</div>
-        </div>
-        <div class="dual-row">
-          <div class="dual-tag">Derogación</div>
-          <div class="dual-track"><div class="bar-fill amber" style="width:${pD}%"></div></div>
-          <div class="dual-num" style="color:var(--amber)">${fmt(r.derog) || '—'}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── TABLE ─────────────────────────────────────────────────────
-function renderTable(rows) {
-  const tbody  = document.getElementById('table-body');
-  const noRes  = document.getElementById('no-results');
-  if (!rows.length) { tbody.innerHTML = ''; noRes.style.display = 'block'; return; }
-  noRes.style.display = 'none';
-  tbody.innerHTML = rows.map((r, i) => {
-    const pct = Math.round((r.total / maxTotal) * 100);
-    return `
-    <tr>
-      <td><span class="idx-badge">${i + 1}</span></td>
-      <td class="bold">${r.attrapi}</td>
-      <td>${r.dgdfm}</td>
-      <td class="num teal">${r.transf ? fmt(r.transf) : '—'}</td>
-      <td class="num amber">${r.derog  ? fmt(r.derog)  : '—'}</td>
-      <td class="num green">
-        ${fmt(r.total)}
-        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// ── SEARCH ────────────────────────────────────────────────────
-function setupSearch() {
-  document.getElementById('search').addEventListener('input', function () {
-    const q = this.value.toLowerCase();
-    renderTable(q
-      ? allRows.filter(r => r.attrapi.toLowerCase().includes(q) || r.dgdfm.toLowerCase().includes(q))
-      : allRows
-    );
+// ── DONUT ─────────────────────────────────────────────────────────
+function renderChartDonut(records) {
+  const transf = records.reduce((s,r)=>s+r.transf,0);
+  const derog  = records.reduce((s,r)=>s+r.derog,0);
+  const total  = records.reduce((s,r)=>s+r.total,0);
+  const sinCl  = Math.max(0, total - transf - derog);
+  new Chart(document.getElementById('chartDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Transferidas','Por derogación','Sin clasificar'],
+      datasets: [{ data:[transf,derog,sinCl], backgroundColor:['#b8410e','#1d3557','#e6dfd0'], borderColor:'#ffffff', borderWidth:2, hoverOffset:6 }]
+    },
+    options: {
+      cutout:'64%',
+      plugins:{
+        legend:{ position:'bottom', labels:{ padding:16, font:{size:12} } },
+        tooltip:{ callbacks:{ label: ctx => ` ${fmt(ctx.parsed)} cajas` } }
+      },
+      responsive:true, maintainAspectRatio:true,
+    }
   });
 }
 
-// ── SORT ──────────────────────────────────────────────────────
+// ── BAR HORIZONTAL ───────────────────────────────────────────────
+function renderChartBarUnidades(records) {
+  const top = [...records].sort((a,b)=>b.total-a.total).slice(0,10);
+  new Chart(document.getElementById('chartBarUnidades'), {
+    type: 'bar',
+    data: {
+      labels: top.map(r => trunc(r.attrapi, 32)),
+      datasets: [{
+        label: 'Cajas',
+        data: top.map(r=>r.total),
+        backgroundColor: top.map((_,i)=> PALETTE[i % PALETTE.length] + 'cc'),
+        borderColor:     top.map((_,i)=> PALETTE[i % PALETTE.length]),
+        borderWidth: 1, borderRadius: 3, borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${fmt(ctx.parsed.x)} cajas` } } },
+      scales:{
+        x:{ grid:{ color:'#e6dfd0' }, ticks:{ font:{size:11}, callback: v => fmtK(v) } },
+        y:{ grid:{ display:false }, ticks:{ font:{size:11} } }
+      },
+      responsive:true, maintainAspectRatio:true,
+    }
+  });
+}
+
+// ── STACKED ───────────────────────────────────────────────────────
+function renderChartStacked(records) {
+  const top = [...records].sort((a,b)=>b.total-a.total).slice(0,8);
+  new Chart(document.getElementById('chartStacked'), {
+    type:'bar',
+    data:{
+      labels: top.map(r=>trunc(r.attrapi,28)),
+      datasets:[
+        { label:'Transferidas',   data:top.map(r=>r.transf), backgroundColor:'#b8410ecc', borderColor:'#b8410e', borderWidth:1, borderRadius:3 },
+        { label:'Por derogación', data:top.map(r=>r.derog),  backgroundColor:'#1d3557cc', borderColor:'#1d3557', borderWidth:1, borderRadius:3 },
+      ]
+    },
+    options:{
+      plugins:{ legend:{ position:'top', labels:{ font:{size:12} } }, tooltip:{ callbacks:{ label: ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{font:{size:11}} },
+        y:{ stacked:true, grid:{color:'#e6dfd0'}, ticks:{font:{size:11}, callback:v=>fmtK(v)} }
+      },
+      responsive:true, maintainAspectRatio:true,
+    }
+  });
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────
+function renderTable(rows) {
+  const tbody  = document.getElementById('tbl-body');
+  const noRes  = document.getElementById('no-results');
+  const count  = document.getElementById('tbl-count');
+  count.textContent = `${rows.length} registro${rows.length!==1?'s':''}`;
+  if (!rows.length) { tbody.innerHTML=''; noRes.style.display='block'; return; }
+  noRes.style.display='none';
+  tbody.innerHTML = rows.map((r,i) => {
+    const tipo = r.transf >= r.derog
+      ? '<span class="badge transf">Transferencia</span>'
+      : '<span class="badge derog">Derogación</span>';
+    return `<tr>
+      <td style="color:var(--ink-muted);font-family:'JetBrains Mono',monospace;font-size:11px">${String(i+1).padStart(2,'0')}</td>
+      <td style="color:var(--ink);font-weight:500">${r.attrapi}</td>
+      <td>${r.dgdfm}</td>
+      <td class="num">${r.transf ? fmt(r.transf) : '—'}</td>
+      <td class="num">${r.derog  ? fmt(r.derog)  : '—'}</td>
+      <td class="num" style="color:var(--ink);font-weight:600">${fmt(r.total)}</td>
+      <td>${tipo}</td>
+    </tr>`;
+  }).join('') +
+  `<tr class="total-row">
+    <td colspan="3">TOTAL GENERAL</td>
+    <td class="num">${fmt(rows.reduce((s,r)=>s+r.transf,0))}</td>
+    <td class="num">${fmt(rows.reduce((s,r)=>s+r.derog,0))}</td>
+    <td class="num">${fmt(rows.reduce((s,r)=>s+r.total,0))}</td>
+    <td></td>
+  </tr>`;
+}
+
+// ── PROYECCIÓN ────────────────────────────────────────────────────
+function renderProyeccion(records) {
+  const base     = records.reduce((s,r)=>s+r.total,0);
+  const crecAnual = Math.round(base * 0.18); // estimación 18% crecimiento anual
+  const years    = [2025,2026,2027,2028,2029];
+  const acum     = years.map((_,i) => base + crecAnual*(i+1));
+  const anual    = years.map(() => crecAnual);
+
+  buildProjChart(years, acum, anual, 'acumulado');
+
+  // Tabla
+  document.getElementById('tbl-proj-body').innerHTML = years.map((y,i)=>{
+    const prevAcum = i===0 ? base : acum[i-1];
+    const pct      = Math.round(((acum[i]-prevAcum)/prevAcum)*100);
+    const badges   = ['📋 En curso','🔄 Proyectado','🔄 Proyectado','🔄 Proyectado','🔄 Proyectado'];
+    return `<tr>
+      <td style="font-family:'Fraunces',serif;font-size:20px;font-weight:400">${y}</td>
+      <td class="num">${fmt(crecAnual)}</td>
+      <td class="num" style="color:var(--ink);font-weight:600">${fmt(acum[i])}</td>
+      <td class="num" style="color:var(--sage)">+${pct}%</td>
+      <td><span style="font-size:12px">${badges[i]}</span></td>
+    </tr>`;
+  }).join('') +
+  `<tr style="background:var(--bg-warm)">
+    <td style="font-weight:600;color:var(--ink)">Base 2024</td>
+    <td class="num">—</td>
+    <td class="num" style="color:var(--accent);font-weight:600">${fmt(base)}</td>
+    <td class="num">—</td>
+    <td><span style="font-size:12px">✅ Real</span></td>
+  </tr>`;
+
+  window._projData = { years, acum, anual, base };
+}
+
+function buildProjChart(years, acum, anual, view) {
+  const ctx = document.getElementById('chartProyeccion');
+  if (projChart) { projChart.destroy(); }
+  const isAcum = view === 'acumulado';
+  projChart = new Chart(ctx, {
+    type: isAcum ? 'line' : 'bar',
+    data:{
+      labels: years.map(String),
+      datasets:[{
+        label: isAcum ? 'Cajas acumuladas' : 'Nuevas cajas por año',
+        data:  isAcum ? acum : anual,
+        backgroundColor: isAcum ? 'rgba(184,65,14,.08)' : 'rgba(184,65,14,.7)',
+        borderColor: '#b8410e', borderWidth: 2,
+        fill: isAcum, tension: .4,
+        pointBackgroundColor:'#b8410e', pointRadius:5, pointHoverRadius:7,
+        borderRadius: isAcum ? 0 : 4,
+      }]
+    },
+    options:{
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${fmt(ctx.parsed.y)} cajas` } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:12}} },
+        y:{ grid:{color:'#e6dfd0'}, ticks:{ font:{size:11}, callback:v=>fmtK(v) } }
+      },
+      responsive:true, maintainAspectRatio:true,
+    }
+  });
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function setupTabs() {
+  document.querySelectorAll('.nav-tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+      window.scrollTo({ top: 0, behavior:'smooth' });
+    });
+  });
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────
+function setupSearch() {
+  document.getElementById('search').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    renderTable(q ? allRows.filter(r=>r.attrapi.toLowerCase().includes(q)||r.dgdfm.toLowerCase().includes(q)) : allRows);
+  });
+}
+
+// ── SORT ──────────────────────────────────────────────────────────
 function setupSort() {
   document.querySelectorAll('thead th[data-col]').forEach(th => {
-    th.addEventListener('click', () => {
+    th.addEventListener('click', ()=>{
       const col = th.dataset.col;
-      if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = -1; }
-      document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted'));
+      if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=-1; }
+      document.querySelectorAll('thead th').forEach(t=>t.classList.remove('sorted'));
       th.classList.add('sorted');
-      allRows.sort((a, b) => {
-        const av = typeof a[col] === 'string' ? a[col].toLowerCase() : a[col];
-        const bv = typeof b[col] === 'string' ? b[col].toLowerCase() : b[col];
-        return av < bv ? sortDir : av > bv ? -sortDir : 0;
+      allRows.sort((a,b)=>{
+        const av = typeof a[col]==='string'?a[col].toLowerCase():a[col];
+        const bv = typeof b[col]==='string'?b[col].toLowerCase():b[col];
+        return av<bv?sortDir:av>bv?-sortDir:0;
       });
       const q = document.getElementById('search').value.toLowerCase();
-      renderTable(q
-        ? allRows.filter(r => r.attrapi.toLowerCase().includes(q) || r.dgdfm.toLowerCase().includes(q))
-        : allRows
-      );
+      renderTable(q?allRows.filter(r=>r.attrapi.toLowerCase().includes(q)||r.dgdfm.toLowerCase().includes(q)):allRows);
+    });
+  });
+}
+
+// ── PROJ TOGGLE ───────────────────────────────────────────────────
+function setupProjToggle() {
+  document.querySelectorAll('#toggle-proj button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#toggle-proj button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      projView = btn.dataset.view;
+      const d = window._projData;
+      if (d) buildProjChart(d.years, d.acum, d.anual, projView);
     });
   });
 }

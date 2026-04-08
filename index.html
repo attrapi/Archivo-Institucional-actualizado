@@ -531,35 +531,52 @@ const trunc = (s,n) => s.length > n ? s.slice(0,n)+'…' : s;
 
 // ── FETCH ────────────────────────────────────────────────────────
 function loadData() {
-  Papa.parse(CSV_URL, {
-    download: true,
-    skipEmptyLines: true,
-    complete: results => processData(results.data),
-    error: err => {
+  fetch(CSV_URL)
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    })
+    .then(text => {
+      const { data } = Papa.parse(text, { skipEmptyLines: false });
+      processData(data);
+    })
+    .catch(err => {
       document.getElementById('loader').innerHTML =
-        `<p style="color:#b8410e;font-size:14px">⚠ Error al cargar los datos: ${err.message || 'revisa la URL o los permisos de la hoja.'}</p>`;
-    }
-  });
+        `<p style="color:#b8410e;font-size:14px">⚠ Error al cargar los datos: ${err.message}</p>`;
+    });
 }
 
 // ── PROCESS ──────────────────────────────────────────────────────
+// Estructura real del CSV (columnas con celdas combinadas exportadas):
+//   col[0] = Nombre unidad ATTRAPI (solo en la primera fila del grupo)
+//   col[1] = vacío (celda combinada)
+//   col[2] = Área DGDFM o etiqueta de resumen
+//   col[3] = Cajas transferidas
+//   col[4] = Cajas por derogación
+//   col[5] = Total cajas de la unidad
 function processData(rows) {
   const records = [];
-  for (const row of rows.slice(1)) {
-    const attrapi = (row[0]||'').trim();
-    const dgdfm   = (row[1]||'').trim();
-    const total   = toNum(row[4]);
+  let currentGroup = '';
 
-    // Saltar filas vacías o de totales generales (total irreal > 5000 por unidad)
-    if (!attrapi && !dgdfm) continue;
-    if (!total) continue;
-    if (total > 5000) continue; // fila de gran total del sheet
+  for (const row of rows) {
+    const col0 = (row[0] || '').trim();
+    const col2 = (row[2] || '').trim();
+    const total = toNum(row[5]);
 
-    // transf y derog no pueden superar el total de esa fila
-    const transf = Math.min(toNum(row[2]), total);
-    const derog  = Math.min(toNum(row[3]), total);
+    // Rastrear nombre de grupo (col[0] no vacío y no es encabezado de columna)
+    if (col0 && !/ESTATUS|DENOMINACIÓN|ATTRAPI|^\d+\s+transfer/i.test(col0)) {
+      currentGroup = col0;
+    }
 
-    records.push({ attrapi: attrapi||dgdfm, dgdfm: dgdfm||'—', transf, derog, total });
+    // Solo filas con total > 0 y <= 5000 (evitar gran total del sheet)
+    if (!total || total > 5000) continue;
+
+    const transf = Math.min(toNum(row[3]), total);
+    const derog  = Math.min(toNum(row[4]), total);
+    const nombre = currentGroup || col0 || col2 || '—';
+    const area   = col2 && col2 !== currentGroup ? col2 : '—';
+
+    records.push({ attrapi: nombre, dgdfm: area, transf, derog, total });
   }
 
   allRows  = records.sort((a,b) => b.total - a.total);

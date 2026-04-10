@@ -54,24 +54,48 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--sage);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* HERO */
-.hero{max-width:1400px;margin:0 auto;padding:60px 40px 44px;display:grid;grid-template-columns:1.4fr 1fr;gap:60px;align-items:end}
-.hero h1{font-family:'Fraunces',serif;font-size:clamp(38px,5vw,70px);font-weight:400;line-height:.95;letter-spacing:-.025em}
+/* HERO — compacto, una sola línea */
+.hero{max-width:1400px;margin:0 auto;padding:20px 40px 0;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(20px,2.2vw,28px);font-weight:400;line-height:1;letter-spacing:-.02em;white-space:nowrap}
 .hero h1 em{font-style:italic;font-weight:300;color:var(--accent)}
-.hero-tag{display:inline-block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:22px}
-.hero-desc{font-size:14px;color:var(--ink-soft);line-height:1.65;max-width:360px}
-.hero-desc strong{color:var(--ink);font-weight:600}
+.hero-tag{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted)}
+.hero-desc{font-size:12px;color:var(--ink-muted);max-width:420px}
+.hero-desc strong{color:var(--ink-soft);font-weight:600}
 
-/* KPIs */
-.kpis-wrap{max-width:1400px;margin:0 auto;padding:0 40px 52px}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden}
-.kpi{background:var(--bg-e);padding:26px 24px;transition:background .25s}
+/* KPIs — solo en pestaña Resumen */
+.kpis-wrap{
+  background:var(--bg);
+  border-bottom:2px solid var(--border-s);
+  padding:12px 40px 0;
+  max-width:100%;
+}
+.kpis-inner{max-width:1400px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px 4px 0 0;overflow:hidden}
+.kpi{background:var(--bg-e);padding:14px 18px;transition:background .2s}
 .kpi:hover{background:var(--bg-w)}
-.kpi-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);margin-bottom:12px}
-.kpi-value{font-family:'Fraunces',serif;font-size:38px;font-weight:400;line-height:1;letter-spacing:-.02em;color:var(--ink)}
-.kpi-value sup{font-size:13px;color:var(--ink-muted);font-weight:400;margin-left:3px;vertical-align:top;top:.55em;position:relative}
-.kpi-meta{font-size:11px;color:var(--ink-muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);margin-bottom:4px}
+.kpi-value{font-family:'Fraunces',serif;font-size:26px;font-weight:400;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.kpi-value sup{font-size:11px;color:var(--ink-muted);font-weight:400;margin-left:2px;vertical-align:top;top:.45em;position:relative}
+.kpi-meta{font-size:10px;color:var(--ink-muted);margin-top:4px}
 .kpi-meta span{color:var(--accent);font-weight:500}
+
+/* TAB BAR — pegada debajo del topbar */
+.tab-bar-wrap{
+  position:sticky;top:57px;z-index:89;
+  background:var(--bg-e);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 8px rgba(26,22,18,.06);
+}
+.tab-bar{max-width:1400px;margin:0 auto;padding:0 40px;display:flex;gap:0}
+.tab-bar button{
+  background:none;border:none;border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:var(--ink-muted);padding:12px 18px;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.tab-bar button:hover{color:var(--ink)}
+.tab-bar button.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
 
 /* SECTIONS */
 section.panel{max-width:1400px;margin:0 auto 52px;padding:0 40px}
@@ -157,57 +181,69 @@ footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px soli
       <div class="brand-mark">A</div>
       <div class="brand-text">ATTRAPI<small>Archivo de Concentración</small><small>Dirección de Procesos Administrativos de Construcción</small></div>  
     </div>
-    <nav class="nav-tabs">
-      <button class="active" data-tab="resumen">Resumen</button>
-      <button data-tab="bodegas">Bodegas</button>
-      <button data-tab="unidades">Unidades</button>
-      <button data-tab="transferencias">Transferencias</button>
-      <button data-tab="tp">TP Mar 2026</button>
-      <button data-tab="proyeccion">Proyección</button>
-    </nav>
     <div class="last-upd" id="last-upd">ACT · —</div>
   </div>
 </header>
-<!-- HERO -->
+
+<!-- HERO compacto -->
 <div class="hero">
-  <div>
-    <h1>Estado del archivo<br><em>de concentración</em></h1>
-  </div>
+  <h1>Estado del archivo <em>de concentración</em></h1>
+  <span class="hero-desc"><strong>ATTRAPI · DGDFM</strong> · Datos en tiempo real desde Google Sheets <span class="live"><span class="live-dot"></span>Live</span></span>
+  <span class="hero-tag" id="last-hero-date">ACT · —</span>
 </div>
-<!-- KPIs -->
-<div class="kpis-wrap">
-  <div class="kpis">
-    <div class="kpi">
-      <div class="kpi-label">Cajas instaladas</div>
-      <div class="kpi-value" id="kpi-cajas">—</div>
-      <div class="kpi-meta">Total en archivo</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Legajos</div>
-      <div class="kpi-value" id="kpi-legajos">—</div>
-      <div class="kpi-meta">3 por caja · estimado</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Hojas estimadas</div>
-      <div class="kpi-value" id="kpi-hojas">—</div>
-      <div class="kpi-meta">800 hojas por legajo</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Espacios de archivo</div>
-      <div class="kpi-value" id="kpi-bodegas">—</div>
-      <div class="kpi-meta" id="kpi-bodegas-meta">—</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Unidades ATTRAPI</div>
-      <div class="kpi-value" id="kpi-unidades">—</div>
-      <div class="kpi-meta">Áreas con documentación</div>
-    </div>
+
+<!-- TAB BAR sticky -->
+<div class="tab-bar-wrap">
+  <div class="tab-bar">
+    <button class="active" data-tab="resumen">Resumen</button>
+    <button data-tab="bodegas">Bodegas</button>
+    <button data-tab="unidades">Unidades</button>
+    <button data-tab="transferencias">Transferencias</button>
+    <button data-tab="tp">TP Mar 2026</button>
+    <button data-tab="proyeccion">Proyección</button>
   </div>
 </div>
 
+<!-- CONTENIDO DE TABS -->
+<div style="padding-top:24px">
+
 <!-- ═══ TAB: RESUMEN ═══ -->
 <div class="tab-panel active" id="tab-resumen">
-  <section class="panel">
+
+  <!-- KPIs solo visibles en Resumen -->
+  <div class="kpis-wrap" style="position:static;border-bottom:2px solid var(--border-s);padding:12px 40px 0;background:var(--bg)">
+    <div class="kpis-inner">
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-label">Cajas instaladas</div>
+        <div class="kpi-value" id="kpi-cajas">—</div>
+        <div class="kpi-meta">Total en archivo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Legajos</div>
+        <div class="kpi-value" id="kpi-legajos">—</div>
+        <div class="kpi-meta">3 por caja · estimado</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Hojas estimadas</div>
+        <div class="kpi-value" id="kpi-hojas">—</div>
+        <div class="kpi-meta">800 hojas por legajo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Espacios de archivo</div>
+        <div class="kpi-value" id="kpi-bodegas">—</div>
+        <div class="kpi-meta" id="kpi-bodegas-meta">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Unidades ATTRAPI</div>
+        <div class="kpi-value" id="kpi-unidades">—</div>
+        <div class="kpi-meta">Áreas con documentación</div>
+      </div>
+    </div>
+    </div><!-- /kpis-inner -->
+  </div><!-- /kpis-wrap -->
+
+  <section class="panel" style="padding-top:24px">
     <div class="sec-head">
       <div><div class="sec-title">Distribución del acervo</div><div class="sec-sub">Bodegas y unidades administrativas</div></div>
     </div>
@@ -434,6 +470,8 @@ footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px soli
     </div>
   </section>
 </div>
+
+</div><!-- /contenido tabs -->
 
 <footer>
   <div class="foot-brand">ATTRAPI · Archivo de Concentración</div>

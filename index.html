@@ -943,7 +943,18 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
       borderColor:'#b8410e',backgroundColor:'rgba(184,65,14,.1)',borderWidth:2.5,tension:.35,fill:true,
       pointBackgroundColor:'#b8410e',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:6,pointHoverRadius:8}]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${fmt(ctx.parsed.y)} cajas`}}},
+      layout:{padding:{top:28}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:false},
+        datalabels:{
+          display:true,
+          anchor:'end',align:'top',
+          color:'#4a4036',
+          font:{family:"'DM Sans',sans-serif",size:11,weight:'600'},
+          formatter: v => fmt(v)
+        }
+      },
       scales:{x:{grid:{display:false}},y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}}}}
   });
 

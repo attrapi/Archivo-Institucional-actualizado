@@ -660,7 +660,20 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
     type:'doughnut',
     data:{ labels:D.bodegas.map(b=>b.nombre), datasets:[{ data:D.bodegas.map(b=>b.cajas), backgroundColor:PALETTE, borderWidth:2, borderColor:'#fff' }] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
-      plugins:{ legend:{position:'right'}, tooltip:{callbacks:{label:ctx=>`${fmt(ctx.parsed)} cajas (${(ctx.parsed/TOTAL_CAJAS*100).toFixed(1)}%)`}} } }
+      plugins:{
+        legend:{position:'right'},
+        tooltip:{enabled:false},
+        datalabels:{
+          display:true,
+          color:'#fff',
+          font:{ family:"'DM Sans',sans-serif", size:11, weight:'600' },
+          formatter:(v, ctx) => {
+            const pct = (v / TOTAL_CAJAS * 100).toFixed(1);
+            return `${fmt(v)}\n${pct}%`;
+          }
+        }
+      }
+    }
   });
 
   const unidOrd = [...D.unidades].sort((a,b)=>b.total-a.total);

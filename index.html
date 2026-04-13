@@ -578,7 +578,7 @@ function parseTP(rows) {
     const col3 = toNum(row[3]);
     if (!col0 && !col3) continue;
     if (col0 && /^(TRANSFERENCIAS|DIRECCIÓN GENERAL|UNIDADES ADMIN|CONTRATISTAS)/i.test(col0)) { seccion = col0.substring(0,60); continue; }
-    if (/total/i.test(col0) && !col1) continue;
+    if (!col0 && !col1 && /^total$/i.test((row[2]||'').trim())) continue;
     if (col0 && !col1 && !col3) { seccion = trunc(col0, 60); continue; }
     if (!col3 && !col1) continue;
     result.push({ seccion: seccion||'—', unidad: col0||'—', num: col1||'—', descripcion: col2||'—', cajas: col3 });

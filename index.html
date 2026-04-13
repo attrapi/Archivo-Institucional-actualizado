@@ -549,8 +549,9 @@ function parseBodegas(rows) {
     }
     if (!cajas) continue;
 
-    const superficie = parseFloat(String(row[1]||'').replace(/,/g,'')) || 0;
-    result.push({ nombre: col0, tipo, superficie, cajas, legajos: cajas*3, hojas: cajas*3*800 });
+    const superficie = parseFloat(String(row[4]||'').replace(/,/g,'')) || 0;
+    const volumen    = parseFloat(String(row[5]||'').replace(/,/g,'')) || 0;
+    result.push({ nombre: col0, tipo, superficie, volumen, cajas, legajos: cajas*3, hojas: cajas*3*800 });
   }
   return result;
 }
@@ -770,12 +771,11 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   });
 
   // ── TANKS de ocupación volumétrica ───────────────────
-  const ALTURA_BODEGA = 5.06;
   const VOL_CAJA = 0.35 * 0.50 * 0.25; // 0.04375 m³
   const tankGrid = document.getElementById('tank-grid');
   D.bodegas.forEach(b => {
-    if (!b.superficie) return;
-    const volTotal = b.superficie * ALTURA_BODEGA;
+    if (!b.volumen) return;
+    const volTotal = b.volumen;
     const volCajas = b.cajas * VOL_CAJA;
     const pct = Math.min((volCajas / volTotal) * 100, 100);
     const level = pct < 30 ? 'low' : pct < 65 ? 'mid' : 'high';

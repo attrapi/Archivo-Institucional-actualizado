@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
 :root {
@@ -619,6 +620,7 @@ function parseProyeccion(rows) {
 // CHART DEFAULTS
 // ═══════════════════════════════════════════════════════
 function setChartDefaults() {
+  Chart.register(ChartDataLabels);
   Chart.defaults.font.family = "'DM Sans', sans-serif";
   Chart.defaults.font.size   = 12;
   Chart.defaults.color       = '#4a4036';
@@ -632,6 +634,8 @@ function setChartDefaults() {
   Chart.defaults.plugins.tooltip.padding       = 11;
   Chart.defaults.plugins.tooltip.cornerRadius  = 4;
   Chart.defaults.plugins.tooltip.displayColors = false;
+  // Datalabels desactivado globalmente; se activa solo donde se necesita
+  Chart.defaults.set('plugins.datalabels', { display: false });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -677,7 +681,18 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         borderColor:'#b8410e', backgroundColor:'rgba(184,65,14,.08)', borderWidth:2, tension:.35, fill:true,
         pointBackgroundColor:'#b8410e', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] },
     options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>`${fmt(ctx.parsed.y)} cajas`}} },
+      layout:{ padding:{ top:28 } },
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:false},
+        datalabels:{
+          display:true,
+          anchor:'end', align:'top',
+          color:'#4a4036',
+          font:{ family:"'DM Sans',sans-serif", size:11, weight:'600' },
+          formatter: v => fmtS(v)
+        }
+      },
       scales:{ x:{grid:{display:false}}, y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}} } }
   });
 

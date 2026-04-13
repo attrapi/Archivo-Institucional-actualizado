@@ -597,8 +597,8 @@ function parseProyeccion(rows) {
       if (/^TOTAL$/i.test(nombre)) {
         totales.existencia = toNum(row[1]);
         totales.y25 = toNum(row[3]); totales.y26 = toNum(row[5]);
-        totales.y27 = toNum(row[7]); totales.y28 = toNum(row[9]);
-        totales.y29 = toNum(row[11]); totales.y30 = toNum(row[13]);
+        totales.y27 = toNum(row[7]); totales.y28 = toNum(row[10]);
+        totales.y29 = toNum(row[13]); totales.y30 = toNum(row[15]);
       }
       continue;
     }
@@ -608,8 +608,8 @@ function parseProyeccion(rows) {
     obras.push({
       nombre,
       existencia: exist,
-      acum:    [exist, toNum(row[3]),toNum(row[5]),toNum(row[7]),toNum(row[9]),toNum(row[11]),toNum(row[13])],
-      entrada: [0,     toNum(row[2]),toNum(row[4]),toNum(row[6]),toNum(row[8]),toNum(row[10]),toNum(row[12])]
+      acum:    [exist, toNum(row[3]),toNum(row[5]),toNum(row[7]),toNum(row[10]),toNum(row[13]),toNum(row[15])],
+      entrada: [0,     toNum(row[2]),toNum(row[4]),toNum(row[6]),toNum(row[8]), toNum(row[11]),toNum(row[14])]
     });
   }
   return { obras, totales };

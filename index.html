@@ -171,19 +171,20 @@ footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px soli
 @media(max-width:1100px){.hero{grid-template-columns:1fr;gap:28px;padding:44px 20px 30px}.topbar-inner{padding:14px 20px;flex-wrap:wrap}.kpis{grid-template-columns:repeat(3,1fr)}.kpis-wrap{padding:0 20px 36px}section.panel{padding:0 20px}.grid-2,.grid-2-eq,.grid-3{grid-template-columns:1fr}.nav-tabs{order:3;width:100%;overflow-x:auto}footer{padding:24px 20px;flex-direction:column;gap:10px;text-align:center}}
 @media(max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi-value{font-size:30px}.sec-head{flex-direction:column;align-items:flex-start;gap:12px}}
 
-/* MODO REPORTE: se activa al imprimir o con clase .report-mode para mostrar todas las pestañas sin el menú */
+/* MODO REPORTE: imprime sólo la pestaña Resumen en una hoja, sin el menú */
 body.report-mode .tab-bar-wrap,
-body.report-mode #btn-report,
-body.report-mode .search-box{display:none !important}
-body.report-mode .tab-panel{display:block !important;page-break-before:auto}
-body.report-mode .tab-panel + .tab-panel{margin-top:24px;padding-top:24px;border-top:2px solid var(--border-s)}
+body.report-mode #btn-report{display:none !important}
+body.report-mode .tab-panel{display:none !important}
+body.report-mode #tab-resumen{display:block !important}
 
 @media print{
-  .tab-bar-wrap,#btn-report,#loader,.search-box{display:none !important}
-  .tab-panel{display:block !important;page-break-inside:avoid}
-  .tab-panel + .tab-panel{page-break-before:always}
+  @page{size:A4 landscape;margin:10mm}
+  .tab-bar-wrap,#btn-report,#loader{display:none !important}
+  .tab-panel{display:none !important}
+  #tab-resumen{display:block !important}
   body{background:#fff}
-  .card,.panel{box-shadow:none !important;break-inside:avoid}
+  .card,.panel{box-shadow:none !important;break-inside:avoid;page-break-inside:avoid}
+  #tab-resumen, #tab-resumen *{break-inside:avoid;page-break-inside:avoid}
 }
 </style>
 </head>

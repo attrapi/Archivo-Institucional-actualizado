@@ -718,10 +718,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
           display:true,
           color:'#fff',
           font:{ family:"'DM Sans',sans-serif", size:11, weight:'600' },
-          formatter:(v, ctx) => {
-            const pct = (v / TOTAL_CAJAS * 100).toFixed(1);
-            return `${fmt(v)}\n${pct}%`;
-          }
+          formatter: v => fmt(v)
         }
       }
     }

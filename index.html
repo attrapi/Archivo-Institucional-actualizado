@@ -393,17 +393,11 @@ footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px soli
       </div>
       <input class="search-box" id="search-transf" type="text" placeholder="Buscar dirección, bodega…">
     </div>
-    <div class="grid-2-eq" style="margin-bottom:20px">
-      <div class="card">
-        <div class="card-title">Cajas por bodega destino</div>
-        <div class="card-sub">Distribución de transferencias</div>
-        <div class="chart-wrap short"><canvas id="c-transf-bodega"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Transferencias por fecha</div>
-        <div class="card-sub">Evolución temporal</div>
-        <div class="chart-wrap short"><canvas id="c-transf-fecha"></canvas></div>
-      </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Cajas por bodega destino</div>
+      <div class="card-sub" id="transf-bodega-sub">Distribución de transferencias</div>
+      <div class="chart-wrap short"><canvas id="c-transf-bodega"></canvas></div>
+      <div style="text-align:center;margin-top:8px;font-size:13px;color:var(--ink-muted)"><strong id="transf-bodega-total" style="font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:var(--ink)">—</strong> Total</div>
     </div>
     <div class="card">
       <div class="card-title">Registro completo de transferencias</div>
@@ -937,6 +931,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   // Chart por bodega
   const bodegaCount={};
   D.transferencias.forEach(t=>{bodegaCount[t.bodega]=(bodegaCount[t.bodega]||0)+t.cajas});
+  document.getElementById('transf-bodega-total').textContent = fmt(Object.values(bodegaCount).reduce((s,v)=>s+v,0));
   new Chart(document.getElementById('c-transf-bodega'),{
     type:'bar',
     data:{labels:Object.keys(bodegaCount),datasets:[{data:Object.values(bodegaCount),backgroundColor:PALETTE,borderRadius:3}]},
@@ -949,31 +944,6 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
           display:true,
           anchor:'end', align:'top', offset:2,
           color:'#4a4036',
-          font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
-          formatter: v => fmt(v)
-        }
-      },
-      scales:{x:{grid:{display:false}},y:{grid:{color:'#f0ead9'}}}}
-  });
-
-  // Chart por fecha (año)
-  const byAnio={};
-  D.transferencias.forEach(t=>{
-    const m=String(t.fecha).match(/\d{4}/);
-    if(m){const y=m[0];byAnio[y]=(byAnio[y]||0)+t.cajas;}
-  });
-  const anios=Object.keys(byAnio).sort();
-  new Chart(document.getElementById('c-transf-fecha'),{
-    type:'bar',
-    data:{labels:anios,datasets:[{data:anios.map(a=>byAnio[a]),backgroundColor:'#1d3557',borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>`${fmt(ctx.parsed.y)} cajas`}},
-        datalabels:{
-          display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
-          anchor:'end', align:'start',
-          color:'#fff',
           font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
           formatter: v => fmt(v)
         }

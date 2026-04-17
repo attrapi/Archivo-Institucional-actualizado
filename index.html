@@ -1028,16 +1028,16 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         legend:{position:'bottom',labels:{font:{size:11}}},
         tooltip:{mode:'index'},
         datalabels:{
-          display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
-          clip: false,
-          anchor: ctx => ctx.dataset.data[ctx.dataIndex] < 800 ? 'end' : 'center',
-          align:  ctx => ctx.dataset.data[ctx.dataIndex] < 800 ? 'top' : 'center',
-          offset: ctx => ctx.dataset.data[ctx.dataIndex] < 800 ? 2 : 0,
-          color:  ctx => ctx.dataset.data[ctx.dataIndex] < 800
-            ? PALETTE[ctx.datasetIndex % PALETTE.length]
-            : '#fff',
+          display: ctx => {
+            const data = ctx.chart.data.datasets.map(d => d.data[ctx.dataIndex] || 0);
+            const total = data.reduce((s,v) => s+v, 0);
+            const v = ctx.dataset.data[ctx.dataIndex] || 0;
+            return v > 0 && total > 0 && (v/total) >= 0.05;
+          },
+          anchor:'center', align:'center',
+          color:'#fff',
           font:{family:"'DM Sans',sans-serif", size:10, weight:'700'},
-          formatter: v => v > 0 ? fmt(v) : null
+          formatter: v => fmt(v)
         }
       },
       scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}}}}

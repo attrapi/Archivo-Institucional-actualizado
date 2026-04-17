@@ -884,9 +884,12 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
           labels:{
             value:{
               display: ctx => {
-                const total = ctx.chart.data.datasets.reduce((s,d)=>s+(d.data[ctx.dataIndex]||0),0);
                 const v = ctx.dataset.data[ctx.dataIndex] || 0;
-                return v > 0 && total > 0 && (v/total) >= 0.08;
+                if (v <= 0) return false;
+                const y = ctx.chart.scales.y;
+                if (!y) return false;
+                const segHeightPx = Math.abs(y.getPixelForValue(0) - y.getPixelForValue(v));
+                return segHeightPx >= 16;
               },
               anchor:'center', align:'center',
               color:'#fff',

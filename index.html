@@ -732,7 +732,17 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
     type:'bar',
     data:{ labels:unidOrd.map(u=>acronym(u.nombre)), datasets:[{ data:unidOrd.map(u=>u.total), backgroundColor:'#b8410e', borderRadius:2, barThickness:22 }] },
     options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{title:ctx=>unidOrd[ctx[0].dataIndex].nombre, label:ctx=>`${fmt(ctx.parsed.y)} cajas`}} },
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{title:ctx=>unidOrd[ctx[0].dataIndex].nombre, label:ctx=>`${fmt(ctx.parsed.y)} cajas`}},
+        datalabels:{
+          display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+          anchor:'end', align:'start',
+          color:'#fff',
+          font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
+          formatter: v => fmt(v)
+        }
+      },
       scales:{ x:{grid:{display:false},ticks:{font:{size:12,weight:'600'},maxRotation:0,minRotation:0}}, y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}} } }
   });
 

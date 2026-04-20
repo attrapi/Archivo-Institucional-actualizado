@@ -335,16 +335,22 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="sec-title">Inventario por bodega</div>
       </div>
     </div>
-    <!-- Ocupación volumétrica por bodega -->
+    <!-- Toggle m³ / m² -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;align-items:center">
+      <span style="font-size:11px;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-right:8px">Unidad</span>
+      <button class="unit-toggle active" data-unit="m3" style="padding:6px 14px;border:1px solid var(--border-s);background:var(--bg-e);cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--ink);border-radius:3px">Volumen (m³)</button>
+      <button class="unit-toggle" data-unit="m2" style="padding:6px 14px;border:1px solid var(--border-s);background:var(--bg);cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--ink-muted);border-radius:3px">Superficie (m²)</button>
+    </div>
+    <!-- Ocupación por bodega -->
     <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
       <div class="card">
-        <div class="card-title">Ocupación volumétrica por bodega</div>
-        <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
+        <div class="card-title" id="tank-title">Ocupación volumétrica por bodega</div>
+        <div class="card-sub" id="tank-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
         <div class="tank-grid" id="tank-grid"></div>
       </div>
       <div class="card" style="min-width:200px">
-        <div class="card-title">Ocupación volumétrica · Contenedor</div>
-        <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
+        <div class="card-title" id="tank-title-cont">Ocupación volumétrica · Contenedor</div>
+        <div class="card-sub" id="tank-sub-cont">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
         <div class="tank-grid" id="tank-grid-cont" style="grid-template-columns:1fr;padding:0 20px"></div>
       </div>
     </div>
@@ -863,17 +869,24 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
                y1:{type:'linear',position:'right',grid:{display:false},title:{display:true,text:'Millones de hojas',font:{size:11}}} } }
   });
 
-  // ── TANKS de ocupación volumétrica ───────────────────
+  // ── TANKS de ocupación (m³ / m²) ─────────────────────
   const VOL_CAJA = 0.35 * 0.50 * 0.25; // 0.04375 m³
   const tankGrid     = document.getElementById('tank-grid');
   const tankGridCont = document.getElementById('tank-grid-cont');
   const tankGridRes  = document.getElementById('tank-grid-res');
 
-  function makeTankCard(b) {
+  function makeTankCard(b, unit='m3') {
     const volTotal = b.volumen;
     const volCajas = b.cajas * VOL_CAJA;
     const pct   = Math.min((volCajas / volTotal) * 100, 100);
     const level = pct < 30 ? 'low' : pct < 65 ? 'mid' : 'high';
+    let meta;
+    if (unit === 'm2' && b.superficie) {
+      const areaCajas = volCajas * b.superficie / volTotal;
+      meta = `${fmt(b.cajas)} cajas<br>${areaCajas.toFixed(1)} m² / ${b.superficie.toFixed(1)} m²`;
+    } else {
+      meta = `${fmt(b.cajas)} cajas<br>${volCajas.toFixed(1)} m³ / ${volTotal.toFixed(1)} m³`;
+    }
     const card  = document.createElement('div');
     card.className = 'tank-card';
     card.innerHTML = `
@@ -882,20 +895,45 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         <div class="tank-fill ${level}" style="height:0%" data-pct="${pct.toFixed(1)}"></div>
       </div>
       <div class="tank-pct">${pct.toFixed(1)}<span>%</span></div>
-      <div class="tank-meta">${fmt(b.cajas)} cajas<br>${volCajas.toFixed(1)} m³ / ${volTotal.toFixed(1)} m³</div>`;
+      <div class="tank-meta">${meta}</div>`;
     return card;
   }
 
-  D.bodegas.forEach(b => {
-    if (!b.volumen) return;
-    const esContenedor = /contenedor/i.test(b.nombre);
-    (esContenedor ? tankGridCont : tankGrid).appendChild(makeTankCard(b));
-    if (tankGridRes) tankGridRes.appendChild(makeTankCard(b));
-  });
-  // Animar llenado al cargar
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.tank-fill').forEach(el => {
-      el.style.height = el.dataset.pct + '%';
+  function renderTanks(unit='m3') {
+    [tankGrid, tankGridCont, tankGridRes].forEach(g => { if (g) g.innerHTML=''; });
+    D.bodegas.forEach(b => {
+      if (!b.volumen) return;
+      const esContenedor = /contenedor/i.test(b.nombre);
+      (esContenedor ? tankGridCont : tankGrid).appendChild(makeTankCard(b, unit));
+      if (tankGridRes) tankGridRes.appendChild(makeTankCard(b, unit));
+    });
+    const titles = {
+      m3:{ t:'Ocupación volumétrica por bodega', s:'Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio',
+           tc:'Ocupación volumétrica · Contenedor', sc:'Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio' },
+      m2:{ t:'Ocupación por superficie · bodega', s:'Superficie ocupada por cajas vs. superficie disponible por espacio',
+           tc:'Ocupación por superficie · Contenedor', sc:'Superficie ocupada por cajas vs. superficie disponible por espacio' }
+    };
+    const cfg = titles[unit];
+    const setTxt = (id,v)=>{const el=document.getElementById(id);if(el) el.textContent=v;};
+    setTxt('tank-title', cfg.t);   setTxt('tank-sub', cfg.s);
+    setTxt('tank-title-cont', cfg.tc); setTxt('tank-sub-cont', cfg.sc);
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.tank-fill').forEach(el => { el.style.height = el.dataset.pct + '%'; });
+    });
+  }
+  renderTanks('m3');
+
+  document.querySelectorAll('.unit-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.unit-toggle').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'var(--bg)';
+        b.style.color = 'var(--ink-muted)';
+      });
+      btn.classList.add('active');
+      btn.style.background = 'var(--bg-e)';
+      btn.style.color = 'var(--ink)';
+      renderTanks(btn.dataset.unit);
     });
   });
 

@@ -67,12 +67,13 @@ doc.add_paragraph()
 # ── 1. Qué es ──
 add_heading('1. ¿Qué tipo de gráfica es?')
 add_par(
-    'Es una gráfica de barras apiladas (stacked bar chart), que presenta información '
-    'similar a una gráfica de área apilada. Cada barra corresponde a una bodega o al '
-    'contenedor, y está dividida en tres segmentos que suman la superficie total '
-    'relevante del espacio medida en metros cuadrados (m²). Se eligió esta variante '
-    'porque los espacios son categorías discretas y las barras permiten colocar '
-    'etiquetas claras sin que los valores se encimen.'
+    'Es una gráfica de área apilada (en inglés, stacked area chart). Cada bodega '
+    '(y el contenedor) aparece como un punto en el eje horizontal y sobre esa línea '
+    'de puntos se trazan tres áreas de color que se apilan una sobre otra. La suma '
+    'de las tres áreas en cada punto representa la superficie total relevante del '
+    'espacio medida en metros cuadrados (m²). Este formato permite ver en un solo '
+    'vistazo la composición interna de cada bodega y, al recorrer el gráfico de '
+    'izquierda a derecha, comparar cómo se comporta el acervo entre espacios.'
 )
 
 # ── 2. Ejes ──
@@ -137,11 +138,13 @@ add_par('Si una barra tiene bastante verde y poca proyección amarilla, es una '
 
 # ── 6. Valores en pantalla ──
 add_heading('6. Valores que aparecen en pantalla')
-add_par('Dentro de cada segmento de la barra se muestra el valor en m² del '
-        'segmento (redondeado a un decimal). Sobre la parte superior de cada barra '
-        'se muestra el total (Ocupado + Proyección + Disponible), también en m². '
-        'Al pasar el cursor sobre una barra aparece un tooltip con el detalle, la '
-        'superficie del espacio y el número de cajas actuales.')
+add_par('Sobre el pico de cada bodega se muestra una etiqueta blanca con el total '
+        'en m² (Ocupado + Proyección + Disponible). Debajo de la gráfica hay una '
+        'franja de tarjetas con el desglose por bodega: el nombre del espacio, una '
+        'mini-barra de proporciones con los tres colores y el valor numérico exacto '
+        'de Ocupado, Proyección y Disponible. Si se pasa el cursor sobre la gráfica '
+        'aparece un tooltip con el detalle, la superficie del espacio y el número '
+        'de cajas actuales.')
 
 # ── 7. Puntos clave ──
 add_heading('7. Puntos clave para la presentación')

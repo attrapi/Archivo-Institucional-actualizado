@@ -248,6 +248,7 @@ body.report-mode #tab-resumen{display:block !important}
   <div class="tab-bar">
     <button class="active" data-tab="resumen">Resumen</button>
     <button data-tab="bodegas">Bodegas</button>
+    <button data-tab="superficie">Superficie (m²)</button>
     <button data-tab="unidades">Transferencias Primarias</button>
     <button data-tab="ts">Transferencias Secundarias</button>
     <button data-tab="transferencias">Direcciones Extintas</button>
@@ -335,22 +336,16 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="sec-title">Inventario por bodega</div>
       </div>
     </div>
-    <!-- Toggle m³ / m² -->
-    <div style="display:flex;gap:6px;margin-bottom:12px;align-items:center">
-      <span style="font-size:11px;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-right:8px">Unidad</span>
-      <button class="unit-toggle active" data-unit="m3" style="padding:6px 14px;border:1px solid var(--border-s);background:var(--bg-e);cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--ink);border-radius:3px">Volumen (m³)</button>
-      <button class="unit-toggle" data-unit="m2" style="padding:6px 14px;border:1px solid var(--border-s);background:var(--bg);cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--ink-muted);border-radius:3px">Superficie (m²)</button>
-    </div>
-    <!-- Ocupación por bodega -->
+    <!-- Ocupación volumétrica por bodega -->
     <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
       <div class="card">
-        <div class="card-title" id="tank-title">Ocupación volumétrica por bodega</div>
-        <div class="card-sub" id="tank-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
+        <div class="card-title">Ocupación volumétrica por bodega</div>
+        <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
         <div class="tank-grid" id="tank-grid"></div>
       </div>
       <div class="card" style="min-width:200px">
-        <div class="card-title" id="tank-title-cont">Ocupación volumétrica · Contenedor</div>
-        <div class="card-sub" id="tank-sub-cont">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
+        <div class="card-title">Ocupación volumétrica · Contenedor</div>
+        <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
         <div class="tank-grid" id="tank-grid-cont" style="grid-template-columns:1fr;padding:0 20px"></div>
       </div>
     </div>
@@ -382,6 +377,47 @@ body.report-mode #tab-resumen{display:block !important}
             <th class="num">% Disponible</th>
           </tr></thead>
           <tbody id="tbody-bodegas"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ TAB: SUPERFICIE (m²) ═══ -->
+<div class="tab-panel" id="tab-superficie">
+  <section class="panel">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Ocupación por superficie</div>
+        <div class="sec-sub">Huella de cajas (0.35 × 0.50 m = 0.175 m² c/u) sobre la superficie disponible de cada espacio</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
+      <div class="card">
+        <div class="card-title">Ocupación por superficie · Bodegas</div>
+        <div class="card-sub">Huella de cajas (0.175 m² c/u) vs. superficie disponible</div>
+        <div class="tank-grid" id="tank-grid-m2"></div>
+      </div>
+      <div class="card" style="min-width:200px">
+        <div class="card-title">Ocupación por superficie · Contenedor</div>
+        <div class="card-sub">Huella de cajas (0.175 m² c/u) vs. superficie disponible</div>
+        <div class="tank-grid" id="tank-grid-m2-cont" style="grid-template-columns:1fr;padding:0 20px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Detalle por superficie</div>
+      <div class="card-sub">Huella total de cajas y porcentaje sobre la superficie del espacio</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Espacio</th><th>Tipo</th>
+            <th class="num">Superficie (m²)</th>
+            <th class="num">Cajas</th>
+            <th class="num">Huella cajas (m²)</th>
+            <th class="num">% Ocupado</th>
+            <th class="num">% Disponible</th>
+          </tr></thead>
+          <tbody id="tbody-superficie"></tbody>
         </table>
       </div>
     </div>
@@ -870,23 +906,27 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   });
 
   // ── TANKS de ocupación (m³ / m²) ─────────────────────
-  const VOL_CAJA = 0.35 * 0.50 * 0.25; // 0.04375 m³
+  const VOL_CAJA  = 0.35 * 0.50 * 0.25; // 0.04375 m³
+  const AREA_CAJA = 0.35 * 0.50;        // 0.175 m² (huella de una caja)
   const tankGrid     = document.getElementById('tank-grid');
   const tankGridCont = document.getElementById('tank-grid-cont');
   const tankGridRes  = document.getElementById('tank-grid-res');
+  const tankGridM2   = document.getElementById('tank-grid-m2');
+  const tankGridM2C  = document.getElementById('tank-grid-m2-cont');
 
   function makeTankCard(b, unit='m3') {
-    const volTotal = b.volumen;
-    const volCajas = b.cajas * VOL_CAJA;
-    const pct   = Math.min((volCajas / volTotal) * 100, 100);
-    const level = pct < 30 ? 'low' : pct < 65 ? 'mid' : 'high';
-    let meta;
+    let pct, meta;
     if (unit === 'm2' && b.superficie) {
-      const areaCajas = volCajas * b.superficie / volTotal;
+      const areaCajas = b.cajas * AREA_CAJA;
+      pct  = Math.min((areaCajas / b.superficie) * 100, 100);
       meta = `${fmt(b.cajas)} cajas<br>${areaCajas.toFixed(1)} m² / ${b.superficie.toFixed(1)} m²`;
     } else {
+      const volTotal = b.volumen;
+      const volCajas = b.cajas * VOL_CAJA;
+      pct  = Math.min((volCajas / volTotal) * 100, 100);
       meta = `${fmt(b.cajas)} cajas<br>${volCajas.toFixed(1)} m³ / ${volTotal.toFixed(1)} m³`;
     }
+    const level = pct < 30 ? 'low' : pct < 65 ? 'mid' : 'high';
     const card  = document.createElement('div');
     card.className = 'tank-card';
     card.innerHTML = `
@@ -899,43 +939,47 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
     return card;
   }
 
-  function renderTanks(unit='m3') {
-    [tankGrid, tankGridCont, tankGridRes].forEach(g => { if (g) g.innerHTML=''; });
-    D.bodegas.forEach(b => {
-      if (!b.volumen) return;
-      const esContenedor = /contenedor/i.test(b.nombre);
-      (esContenedor ? tankGridCont : tankGrid).appendChild(makeTankCard(b, unit));
-      if (tankGridRes) tankGridRes.appendChild(makeTankCard(b, unit));
-    });
-    const titles = {
-      m3:{ t:'Ocupación volumétrica por bodega', s:'Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio',
-           tc:'Ocupación volumétrica · Contenedor', sc:'Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio' },
-      m2:{ t:'Ocupación por superficie · bodega', s:'Superficie ocupada por cajas vs. superficie disponible por espacio',
-           tc:'Ocupación por superficie · Contenedor', sc:'Superficie ocupada por cajas vs. superficie disponible por espacio' }
-    };
-    const cfg = titles[unit];
-    const setTxt = (id,v)=>{const el=document.getElementById(id);if(el) el.textContent=v;};
-    setTxt('tank-title', cfg.t);   setTxt('tank-sub', cfg.s);
-    setTxt('tank-title-cont', cfg.tc); setTxt('tank-sub-cont', cfg.sc);
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.tank-fill').forEach(el => { el.style.height = el.dataset.pct + '%'; });
-    });
-  }
-  renderTanks('m3');
-
-  document.querySelectorAll('.unit-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.unit-toggle').forEach(b => {
-        b.classList.remove('active');
-        b.style.background = 'var(--bg)';
-        b.style.color = 'var(--ink-muted)';
-      });
-      btn.classList.add('active');
-      btn.style.background = 'var(--bg-e)';
-      btn.style.color = 'var(--ink)';
-      renderTanks(btn.dataset.unit);
-    });
+  D.bodegas.forEach(b => {
+    if (!b.volumen) return;
+    const esContenedor = /contenedor/i.test(b.nombre);
+    (esContenedor ? tankGridCont : tankGrid).appendChild(makeTankCard(b, 'm3'));
+    if (tankGridRes) tankGridRes.appendChild(makeTankCard(b, 'm3'));
+    if (b.superficie) {
+      (esContenedor ? tankGridM2C : tankGridM2).appendChild(makeTankCard(b, 'm2'));
+    }
   });
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.tank-fill').forEach(el => { el.style.height = el.dataset.pct + '%'; });
+  });
+
+  // Tabla superficie
+  const tbSup = document.getElementById('tbody-superficie');
+  if (tbSup) {
+    let totCajasSup=0, totSup=0, totHuella=0;
+    D.bodegas.forEach(b => {
+      if (!b.superficie) return;
+      const huella = b.cajas * AREA_CAJA;
+      const pct = (huella / b.superficie) * 100;
+      totCajasSup += b.cajas; totSup += b.superficie; totHuella += huella;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="bold">${b.nombre}</td><td><span class="badge ${b.tipo.toLowerCase()}">${b.tipo}</span></td>
+        <td class="num">${b.superficie.toLocaleString('es-MX')}</td>
+        <td class="num">${fmt(b.cajas)}</td>
+        <td class="num">${huella.toFixed(1)}</td>
+        <td class="num">${pct.toFixed(1)}%</td>
+        <td class="num">${Math.max(0,100-pct).toFixed(1)}%</td>`;
+      tbSup.appendChild(tr);
+    });
+    const trT = document.createElement('tr'); trT.className='total-row';
+    const pctT = totSup ? (totHuella/totSup*100) : 0;
+    trT.innerHTML = `<td>TOTAL</td><td></td>
+      <td class="num">${totSup.toLocaleString('es-MX')}</td>
+      <td class="num">${fmt(totCajasSup)}</td>
+      <td class="num">${totHuella.toFixed(1)}</td>
+      <td class="num">${pctT.toFixed(1)}%</td>
+      <td class="num">${Math.max(0,100-pctT).toFixed(1)}%</td>`;
+    tbSup.appendChild(trT);
+  }
 
   // Tabla bodegas
   const tbB = document.getElementById('tbody-bodegas');

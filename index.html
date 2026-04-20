@@ -307,16 +307,16 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="chart-wrap"><canvas id="c-bodegas-donut"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Cajas por unidad ATTRAPI</div>
-        <div class="card-sub">Ordenadas por volumen total</div>
-        <div class="chart-wrap"><canvas id="c-unidades-bar"></canvas></div>
+        <div class="card-title">Ocupación por superficie</div>
+        <div class="card-sub">Bodegas y contenedor · Huella de cajas (0.175 m²) vs. superficie disponible</div>
+        <div class="tank-grid" id="tank-grid-res"></div>
       </div>
     </div>
     <div class="grid-2">
       <div class="card">
-        <div class="card-title">Ocupación por superficie</div>
-        <div class="card-sub">Bodegas y contenedor · Huella de cajas (0.175 m²) vs. superficie disponible</div>
-        <div class="tank-grid" id="tank-grid-res"></div>
+        <div class="card-title">Cajas por unidad ATTRAPI</div>
+        <div class="card-sub">Ordenadas por volumen total</div>
+        <div class="chart-wrap"><canvas id="c-unidades-bar"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Proyección acumulada 2025–2030</div>
@@ -1323,18 +1323,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         panelClone.querySelectorAll('#btn-report').forEach(b => b.remove());
         // Normaliza la kpis-wrap dentro del panel (quita sticky/overlays)
         panelClone.querySelectorAll('.kpis-wrap').forEach(k => { k.style.position='static'; k.style.padding='0 0 12px'; k.style.borderBottom='none'; });
-        // Reordenar para el PDF: fila 1 → Cajas por bodega + Ocupación por superficie · fila 2 → Cajas por unidad + Proyección
-        const grids = panelClone.querySelectorAll('.grid-2');
-        if (grids.length >= 2) {
-          const g1 = grids[0].children;
-          const g2 = grids[1].children;
-          if (g1.length >= 2 && g2.length >= 2) {
-            const cardUnidades = g1[1];   // Cajas por unidad ATTRAPI
-            const cardTanks    = g2[0];   // Ocupación por superficie
-            grids[0].replaceChild(cardTanks, cardUnidades);
-            grids[1].insertBefore(cardUnidades, grids[1].firstChild);
-          }
-        }
+        // El layout ya es el deseado para el PDF: fila 1 → Cajas por bodega + Ocupación por superficie · fila 2 → Cajas por unidad + Proyección
         // Sustituir cada canvas del clon por la imagen del canvas original (Chart.js)
         const origCanvases  = panel.querySelectorAll('canvas');
         const cloneCanvases = panelClone.querySelectorAll('canvas');

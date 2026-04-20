@@ -1176,11 +1176,28 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
       btnReport.textContent = 'Generando…';
       try {
         const wrap = document.createElement('div');
-        wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:1400px;background:#faf7f0;padding:20px;font-family:"DM Sans",sans-serif';
+        wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:1400px;background:#ffffff;padding:20px;font-family:"DM Sans",sans-serif;color:#000';
+        // Override para que todo el texto se vea marcado/opaco en el PDF
+        const styleOverride = document.createElement('style');
+        styleOverride.textContent = `
+          #pdf-report, #pdf-report *{color:#000 !important;opacity:1 !important;filter:none !important}
+          #pdf-report .kpi-label,#pdf-report .kpi-meta,#pdf-report .card-sub,#pdf-report .sec-sub,#pdf-report .tank-name,#pdf-report .tank-meta{color:#2a2420 !important;font-weight:600 !important}
+          #pdf-report .kpi-value,#pdf-report .sec-title,#pdf-report .card-title,#pdf-report .tank-pct,#pdf-report h1,#pdf-report h2,#pdf-report h3{color:#000 !important;font-weight:700 !important}
+          #pdf-report em{color:#b8410e !important;font-weight:700 !important}
+          #pdf-report .badge,#pdf-report .num{color:#000 !important}
+          #pdf-report .card,#pdf-report .panel{background:#fff !important;border:1px solid #c9c0a8 !important}
+          #pdf-report .tank-wrap{border-color:#3d332a !important}
+          #pdf-report .tank-pct span{color:#2a2420 !important}
+          #pdf-report .tank-fill.low{background:#4f7a40 !important}
+          #pdf-report .tank-fill.mid{background:#a87b1d !important}
+          #pdf-report .tank-fill.high{background:#a5360a !important}
+        `;
+        wrap.id = 'pdf-report';
+        wrap.appendChild(styleOverride);
         const header = document.createElement('div');
-        header.style.cssText = 'text-align:center;padding:0 0 14px;margin-bottom:10px;border-bottom:2px solid #d9d2bf';
-        header.innerHTML = '<div style="font-family:\'DM Sans\',sans-serif;font-size:12px;letter-spacing:.12em;color:#8a7e68;text-transform:uppercase;font-weight:700">ATTRAPI · Archivo de Concentración</div>'
-                         + '<h1 style="font-family:\'Fraunces\',serif;font-size:28px;font-weight:400;color:#3d332a;margin:4px 0 0;letter-spacing:-.01em">Estado del archivo <em style="font-style:italic;color:#b8410e">de concentración</em></h1>';
+        header.style.cssText = 'text-align:center;padding:0 0 14px;margin-bottom:10px;border-bottom:2px solid #3d332a';
+        header.innerHTML = '<div style="font-family:\'DM Sans\',sans-serif;font-size:12px;letter-spacing:.12em;color:#000;text-transform:uppercase;font-weight:800">ATTRAPI · Archivo de Concentración</div>'
+                         + '<h1 style="font-family:\'Fraunces\',serif;font-size:28px;font-weight:700;color:#000;margin:4px 0 0;letter-spacing:-.01em">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></h1>';
         const panelClone = panel.cloneNode(true);
         panelClone.querySelectorAll('#btn-report').forEach(b => b.remove());
         // Normaliza la kpis-wrap dentro del panel (quita sticky/overlays)

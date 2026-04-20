@@ -605,7 +605,7 @@ body.report-mode #tab-resumen{display:block !important}
     </div>
     <div class="card">
       <div class="card-title">Área apilada · Bodegas y contenedor</div>
-      <div class="card-sub">Rojo = ocupado · Amarillo = proyección de ocupación · Verde = disponible</div>
+      <div class="card-sub">Rojo = ocupado · Amarillo = proyección de ocupación (2030) · Verde = disponible</div>
       <div class="chart-wrap tall"><canvas id="c-area-bodegas"></canvas></div>
       <div id="area-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border-s)"></div>
     </div>
@@ -1341,7 +1341,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
       labels: areaDatasets.map(d => d.nombre),
       datasets:[
         { label:'Ocupado',    data:areaDatasets.map(d=>d.ocupado),    backgroundColor:'rgba(184,65,14,.55)',  borderColor:'#b8410e', borderWidth:2, fill:'origin', tension:.3, pointRadius:3, pointBackgroundColor:'#b8410e' },
-        { label:'Proyección', data:areaDatasets.map(d=>d.proy),       backgroundColor:'rgba(215,178,48,.55)', borderColor:'#d7b230', borderWidth:2, fill:'-1',     tension:.3, pointRadius:3, pointBackgroundColor:'#d7b230' },
+        { label:'Proyección (2030)', data:areaDatasets.map(d=>d.proy),       backgroundColor:'rgba(215,178,48,.55)', borderColor:'#d7b230', borderWidth:2, fill:'-1',     tension:.3, pointRadius:3, pointBackgroundColor:'#d7b230' },
         { label:'Disponible', data:areaDatasets.map(d=>d.disponible), backgroundColor:'rgba(111,156,88,.55)', borderColor:'#6f9c58', borderWidth:2, fill:'-1',     tension:.3, pointRadius:3, pointBackgroundColor:'#6f9c58' }
       ]
     },
@@ -1408,7 +1408,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         </div>
         <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:11px;color:var(--ink)">
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:#b8410e;border-radius:50%"></span>Ocupado</span><span style="text-align:right;font-weight:700">${d.ocupado.toFixed(1)} m²</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:#d7b230;border-radius:50%"></span>Proyección</span><span style="text-align:right;font-weight:700">${d.proy.toFixed(1)} m²</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:#d7b230;border-radius:50%"></span>Proyección (2030)</span><span style="text-align:right;font-weight:700">${d.proy.toFixed(1)} m²</span>
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:#6f9c58;border-radius:50%"></span>Disponible</span><span style="text-align:right;font-weight:700">${d.disponible.toFixed(1)} m²</span>
         </div>`;
       areaBreak.appendChild(card);

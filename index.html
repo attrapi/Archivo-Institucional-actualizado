@@ -1359,6 +1359,13 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
             return rank(a.dataset.label) - rank(b.dataset.label);
           },
           callbacks:{
+            title: ctx => {
+              const b = areaDatasets[ctx[0].dataIndex];
+              const totalStack = b.ocupado + b.proy + b.disponible;
+              const diff = totalStack - b.superficie;
+              const alerta = diff > 0.5 ? ` (supera por ${diff.toFixed(1)} m²)` : '';
+              return [b.nombre, `Superficie total apilada: ${totalStack.toFixed(1)} m²${alerta}`];
+            },
             labelColor: ctx => ({
               borderColor: ctx.dataset.borderColor,
               backgroundColor: ctx.dataset.borderColor,
@@ -1368,12 +1375,8 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
             label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)} m²`,
             afterBody: ctx => {
               const b = areaDatasets[ctx[0].dataIndex];
-              const totalStack = b.ocupado + b.proy + b.disponible;
-              const diff = totalStack - b.superficie;
-              const alerta = diff > 0.5 ? ` (supera por ${diff.toFixed(1)} m²)` : '';
               return [
-                '────────────',
-                `Superficie total (Ocup + Disp + Proy): ${totalStack.toFixed(1)} m²${alerta}`,
+                '',
                 `Superficie real del espacio: ${b.superficie.toFixed(1)} m²`,
                 `${fmt(b.cajas)} cajas actuales`
               ];

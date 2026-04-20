@@ -852,14 +852,33 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
           }
         },
         datalabels:{
-          display: ctx => ctx.datasetIndex === 1,
-          anchor:'end', align:'end', clamp:true,
-          color:'#1a1612',
-          font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
-          formatter: (_, ctx) => {
-            const b = bodSup[ctx.dataIndex];
-            const pct = (b.cajas * AREA_CAJA / b.superficie * 100).toFixed(0);
-            return `${fmt(b.cajas)} cajas · ${pct}%`;
+          labels:{
+            cajas:{
+              display: ctx => {
+                if (ctx.datasetIndex !== 0) return false;
+                const v = ctx.dataset.data[ctx.dataIndex] || 0;
+                if (v <= 0) return false;
+                const x = ctx.chart.scales.x;
+                if (!x) return false;
+                const w = Math.abs(x.getPixelForValue(v) - x.getPixelForValue(0));
+                return w >= 55;
+              },
+              anchor:'end', align:'start', clamp:true,
+              color:'#fff',
+              font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
+              formatter: (_, ctx) => `${fmt(bodSup[ctx.dataIndex].cajas)} cajas`
+            },
+            disponible:{
+              display: ctx => ctx.datasetIndex === 1,
+              anchor:'end', align:'end', clamp:true,
+              color:'#1a1612',
+              font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
+              formatter: (_, ctx) => {
+                const b = bodSup[ctx.dataIndex];
+                const pctDisp = Math.max(0, 100 - (b.cajas * AREA_CAJA / b.superficie * 100)).toFixed(0);
+                return `${pctDisp}% disponible`;
+              }
+            }
           }
         }
       },

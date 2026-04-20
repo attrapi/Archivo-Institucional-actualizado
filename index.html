@@ -334,9 +334,14 @@ body.report-mode #tab-resumen{display:block !important}
       <div>
         <div class="sec-title">Inventario por bodega</div>
       </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="mode-toggle active" data-mode="vol" style="padding:6px 14px;border:1px solid var(--border-s);background:var(--bg-e);cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--ink);border-radius:3px">Volumen (m³)</button>
+        <button class="mode-toggle" data-mode="sup" style="padding:6px 14px;border:1px solid var(--border-s);background:var(--bg);cursor:pointer;font:600 12px 'DM Sans',sans-serif;color:var(--ink-muted);border-radius:3px">Superficie (m²)</button>
+      </div>
     </div>
+
     <!-- Ocupación volumétrica por bodega -->
-    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
+    <div class="mode-view" data-view="vol" style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
       <div class="card">
         <div class="card-title">Ocupación volumétrica por bodega</div>
         <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible por espacio</div>
@@ -350,7 +355,7 @@ body.report-mode #tab-resumen{display:block !important}
     </div>
 
     <!-- Ocupación por superficie (m²) -->
-    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
+    <div class="mode-view" data-view="sup" style="display:none;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
       <div class="card">
         <div class="card-title">Ocupación por superficie · Bodegas</div>
         <div class="card-sub">Huella de cajas (0.175 m² c/u) vs. superficie disponible por espacio</div>
@@ -375,9 +380,32 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="chart-wrap"><canvas id="c-bodegas-multi"></canvas></div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">Detalle por bodega</div>
-      <div class="card-sub">Inventario completo</div>
+
+    <!-- Detalle por bodega · Volumen -->
+    <div class="card mode-view" data-view="vol">
+      <div class="card-title">Detalle por bodega · Volumen</div>
+      <div class="card-sub">Inventario completo con porcentaje volumétrico</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Espacio</th><th>Tipo</th>
+            <th class="num">Volumen (m³)</th>
+            <th class="num">Cajas</th>
+            <th class="num">Legajos</th>
+            <th class="num">Hojas estimadas</th>
+            <th class="num">Volumen cajas (m³)</th>
+            <th class="num">% Ocupado</th>
+            <th class="num">% Disponible</th>
+          </tr></thead>
+          <tbody id="tbody-bodegas"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Detalle por bodega · Superficie -->
+    <div class="card mode-view" data-view="sup" style="display:none">
+      <div class="card-title">Detalle por bodega · Superficie</div>
+      <div class="card-sub">Inventario completo con porcentaje de huella de cajas sobre la superficie</div>
       <div class="tbl-wrap">
         <table>
           <thead><tr>
@@ -386,10 +414,11 @@ body.report-mode #tab-resumen{display:block !important}
             <th class="num">Cajas</th>
             <th class="num">Legajos</th>
             <th class="num">Hojas estimadas</th>
-            <th class="num">% Ocupación</th>
+            <th class="num">Huella cajas (m²)</th>
+            <th class="num">% Ocupado</th>
             <th class="num">% Disponible</th>
           </tr></thead>
-          <tbody id="tbody-bodegas"></tbody>
+          <tbody id="tbody-bodegas-sup"></tbody>
         </table>
       </div>
     </div>
@@ -925,23 +954,87 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   });
 
 
-  // Tabla bodegas
+  // Tabla bodegas · Volumen (m³)
   const tbB = document.getElementById('tbody-bodegas');
+  let totVolCap=0, totVolCajas=0;
   D.bodegas.forEach(b => {
+    const volCajas = b.cajas * VOL_CAJA;
+    const pct = b.volumen ? (volCajas/b.volumen*100) : null;
+    if (b.volumen) { totVolCap += b.volumen; totVolCajas += volCajas; }
     const tr = document.createElement('tr');
     tr.innerHTML = `<td class="bold">${b.nombre}</td><td><span class="badge ${b.tipo.toLowerCase()}">${b.tipo}</span></td>
-      <td class="num">${b.superficie?b.superficie.toLocaleString('es-MX'):'—'}</td>
+      <td class="num">${b.volumen ? b.volumen.toFixed(1) : '—'}</td>
       <td class="num">${fmt(b.cajas)}</td><td class="num">${fmt(b.legajos)}</td>
       <td class="num">${fmt(b.hojas)}</td>
-      <td class="num">${b.volumen ? (b.cajas*VOL_CAJA/b.volumen*100).toFixed(1)+'%' : '—'}</td>
-      <td class="num">${b.volumen ? (100 - b.cajas*VOL_CAJA/b.volumen*100).toFixed(1)+'%' : '—'}</td>`;
+      <td class="num">${volCajas.toFixed(1)}</td>
+      <td class="num">${pct!==null ? pct.toFixed(1)+'%' : '—'}</td>
+      <td class="num">${pct!==null ? Math.max(0,100-pct).toFixed(1)+'%' : '—'}</td>`;
     tbB.appendChild(tr);
   });
   const trTB = document.createElement('tr'); trTB.className='total-row';
-  trTB.innerHTML=`<td>TOTAL</td><td></td><td class="num">${D.bodegas.reduce((s,b)=>s+b.superficie,0).toLocaleString('es-MX')}</td>
+  const pctTotVol = totVolCap ? (totVolCajas/totVolCap*100) : 0;
+  trTB.innerHTML=`<td>TOTAL</td><td></td>
+    <td class="num">${totVolCap.toFixed(1)}</td>
     <td class="num">${fmt(TOTAL_CAJAS)}</td><td class="num">${fmt(TOTAL_CAJAS*3)}</td>
-    <td class="num">${fmt(TOTAL_CAJAS*3*800)}</td><td class="num">—</td><td class="num">—</td>`;
+    <td class="num">${fmt(TOTAL_CAJAS*3*800)}</td>
+    <td class="num">${totVolCajas.toFixed(1)}</td>
+    <td class="num">${pctTotVol.toFixed(1)}%</td>
+    <td class="num">${Math.max(0,100-pctTotVol).toFixed(1)}%</td>`;
   tbB.appendChild(trTB);
+
+  // Tabla bodegas · Superficie (m²)
+  const tbBS = document.getElementById('tbody-bodegas-sup');
+  if (tbBS) {
+    let totSup=0, totHuella=0, totCajasS=0, totLeg=0, totHoj=0;
+    D.bodegas.forEach(b => {
+      const huella = b.cajas * AREA_CAJA;
+      const pct = b.superficie ? (huella/b.superficie*100) : null;
+      if (b.superficie) { totSup += b.superficie; totHuella += huella; }
+      totCajasS += b.cajas; totLeg += b.legajos; totHoj += b.hojas;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="bold">${b.nombre}</td><td><span class="badge ${b.tipo.toLowerCase()}">${b.tipo}</span></td>
+        <td class="num">${b.superficie ? b.superficie.toLocaleString('es-MX') : '—'}</td>
+        <td class="num">${fmt(b.cajas)}</td><td class="num">${fmt(b.legajos)}</td>
+        <td class="num">${fmt(b.hojas)}</td>
+        <td class="num">${huella.toFixed(1)}</td>
+        <td class="num">${pct!==null ? pct.toFixed(1)+'%' : '—'}</td>
+        <td class="num">${pct!==null ? Math.max(0,100-pct).toFixed(1)+'%' : '—'}</td>`;
+      tbBS.appendChild(tr);
+    });
+    const pctTotS = totSup ? (totHuella/totSup*100) : 0;
+    const trT = document.createElement('tr'); trT.className='total-row';
+    trT.innerHTML=`<td>TOTAL</td><td></td>
+      <td class="num">${totSup.toLocaleString('es-MX')}</td>
+      <td class="num">${fmt(totCajasS)}</td><td class="num">${fmt(totLeg)}</td>
+      <td class="num">${fmt(totHoj)}</td>
+      <td class="num">${totHuella.toFixed(1)}</td>
+      <td class="num">${pctTotS.toFixed(1)}%</td>
+      <td class="num">${Math.max(0,100-pctTotS).toFixed(1)}%</td>`;
+    tbBS.appendChild(trT);
+  }
+
+  // Toggle Volumen/Superficie
+  document.querySelectorAll('.mode-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      document.querySelectorAll('.mode-toggle').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'var(--bg)';
+        b.style.color = 'var(--ink-muted)';
+      });
+      btn.classList.add('active');
+      btn.style.background = 'var(--bg-e)';
+      btn.style.color = 'var(--ink)';
+      document.querySelectorAll('.mode-view').forEach(v => {
+        const show = v.dataset.view === mode;
+        if (v.classList.contains('card')) {
+          v.style.display = show ? '' : 'none';
+        } else {
+          v.style.display = show ? 'grid' : 'none';
+        }
+      });
+    });
+  });
 
   // ── UNIDADES ─────────────────────────────────────────
   new Chart(document.getElementById('c-unidades-stacked'), {

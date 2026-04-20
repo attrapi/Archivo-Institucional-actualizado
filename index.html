@@ -604,7 +604,7 @@ body.report-mode #tab-resumen{display:block !important}
       </div>
     </div>
     <div class="card">
-      <div class="card-title">Área apilada · Bodegas y contenedor</div>
+      <div class="card-title">Barras apiladas · Bodegas y contenedor</div>
       <div class="card-sub">Rojo = ocupado · Amarillo = proyección de ocupación (2030) · Verde = disponible</div>
       <div class="chart-wrap tall"><canvas id="c-area-bodegas"></canvas></div>
       <div id="area-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border-s)"></div>
@@ -1336,13 +1336,13 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
     return { nombre:b.nombre, ocupado, proy:proyeccion, disponible, superficie:b.superficie, cajas:b.cajas };
   });
   new Chart(document.getElementById('c-area-bodegas'), {
-    type:'line',
+    type:'bar',
     data:{
       labels: areaDatasets.map(d => d.nombre),
       datasets:[
-        { label:'Ocupado',    data:areaDatasets.map(d=>d.ocupado),    backgroundColor:'rgba(184,65,14,.55)',  borderColor:'#b8410e', borderWidth:2, fill:'origin', tension:.3, pointRadius:3, pointBackgroundColor:'#b8410e' },
-        { label:'Proyección (2030)', data:areaDatasets.map(d=>d.proy),       backgroundColor:'rgba(215,178,48,.55)', borderColor:'#d7b230', borderWidth:2, fill:'-1',     tension:.3, pointRadius:3, pointBackgroundColor:'#d7b230' },
-        { label:'Disponible', data:areaDatasets.map(d=>d.disponible), backgroundColor:'rgba(111,156,88,.55)', borderColor:'#6f9c58', borderWidth:2, fill:'-1',     tension:.3, pointRadius:3, pointBackgroundColor:'#6f9c58' }
+        { label:'Ocupado',           data:areaDatasets.map(d=>d.ocupado),    backgroundColor:'#b8410e', borderColor:'#b8410e', borderWidth:0 },
+        { label:'Proyección (2030)', data:areaDatasets.map(d=>d.proy),       backgroundColor:'#d7b230', borderColor:'#d7b230', borderWidth:0 },
+        { label:'Disponible',        data:areaDatasets.map(d=>d.disponible), backgroundColor:'#6f9c58', borderColor:'#6f9c58', borderWidth:0 }
       ]
     },
     options:{
@@ -1398,7 +1398,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         }
       },
       scales:{
-        x:{ grid:{ display:false }, ticks:{ font:{ size:11, weight:'600' }, maxRotation:30, minRotation:30 } },
+        x:{ stacked:true, grid:{ display:false }, ticks:{ font:{ size:11, weight:'600' }, maxRotation:30, minRotation:30 } },
         y:{ stacked:true, grid:{ color:'#f0ead9' }, title:{ display:true, text:'m²', font:{ size:11 } }, ticks:{ callback:v=>v+' m²' } }
       }
     }

@@ -248,7 +248,6 @@ body.report-mode #tab-resumen{display:block !important}
   <div class="tab-bar">
     <button class="active" data-tab="resumen">Resumen</button>
     <button data-tab="bodegas">Bodegas</button>
-    <button data-tab="superficie">Volumen</button>
     <button data-tab="unidades">Transferencias Primarias</button>
     <button data-tab="ts">Transferencias Secundarias</button>
     <button data-tab="transferencias">Direcciones Extintas</button>
@@ -391,47 +390,6 @@ body.report-mode #tab-resumen{display:block !important}
             <th class="num">% Disponible</th>
           </tr></thead>
           <tbody id="tbody-bodegas"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ═══ TAB: VOLUMEN (m³) ═══ -->
-<div class="tab-panel" id="tab-superficie">
-  <section class="panel">
-    <div class="sec-head">
-      <div>
-        <div class="sec-title">Ocupación volumétrica</div>
-        <div class="sec-sub">Volumen de cajas (0.35 × 0.50 × 0.25 m = 0.04375 m³ c/u) sobre el volumen disponible de cada espacio</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;align-items:start">
-      <div class="card">
-        <div class="card-title">Ocupación volumétrica · Bodegas</div>
-        <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible</div>
-        <div class="tank-grid" id="tank-grid-vol"></div>
-      </div>
-      <div class="card" style="min-width:200px">
-        <div class="card-title">Ocupación volumétrica · Contenedor</div>
-        <div class="card-sub">Volumen de cajas (0.04375 m³ c/u) vs. volumen disponible</div>
-        <div class="tank-grid" id="tank-grid-vol-cont" style="grid-template-columns:1fr;padding:0 20px"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Detalle volumétrico</div>
-      <div class="card-sub">Volumen total de cajas y porcentaje sobre el volumen del espacio</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>Espacio</th><th>Tipo</th>
-            <th class="num">Volumen (m³)</th>
-            <th class="num">Cajas</th>
-            <th class="num">Volumen cajas (m³)</th>
-            <th class="num">% Ocupado</th>
-            <th class="num">% Disponible</th>
-          </tr></thead>
-          <tbody id="tbody-volumen"></tbody>
         </table>
       </div>
     </div>
@@ -927,8 +885,6 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   const tankGridRes   = document.getElementById('tank-grid-res');
   const tankGridM2    = document.getElementById('tank-grid-m2');
   const tankGridM2C   = document.getElementById('tank-grid-m2-cont');
-  const tankGridVol   = document.getElementById('tank-grid-vol');
-  const tankGridVolC  = document.getElementById('tank-grid-vol-cont');
 
   function makeTankCard(b, unit='m3') {
     let pct, meta;
@@ -963,42 +919,11 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
     if (b.superficie && tankGridM2 && tankGridM2C) {
       (esContenedor ? tankGridM2C : tankGridM2).appendChild(makeTankCard(b, 'm2'));
     }
-    if (tankGridVol && tankGridVolC) {
-      (esContenedor ? tankGridVolC : tankGridVol).appendChild(makeTankCard(b, 'm3'));
-    }
   });
   requestAnimationFrame(() => {
     document.querySelectorAll('.tank-fill').forEach(el => { el.style.height = el.dataset.pct + '%'; });
   });
 
-  // Tabla volumen (pestaña dedicada)
-  const tbVol = document.getElementById('tbody-volumen');
-  if (tbVol) {
-    let totCajas=0, totVol=0, totVolCajas=0;
-    D.bodegas.forEach(b => {
-      if (!b.volumen) return;
-      const volCajas = b.cajas * VOL_CAJA;
-      const pct = (volCajas / b.volumen) * 100;
-      totCajas += b.cajas; totVol += b.volumen; totVolCajas += volCajas;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td class="bold">${b.nombre}</td><td><span class="badge ${b.tipo.toLowerCase()}">${b.tipo}</span></td>
-        <td class="num">${b.volumen.toFixed(1)}</td>
-        <td class="num">${fmt(b.cajas)}</td>
-        <td class="num">${volCajas.toFixed(1)}</td>
-        <td class="num">${pct.toFixed(1)}%</td>
-        <td class="num">${Math.max(0,100-pct).toFixed(1)}%</td>`;
-      tbVol.appendChild(tr);
-    });
-    const trT = document.createElement('tr'); trT.className='total-row';
-    const pctT = totVol ? (totVolCajas/totVol*100) : 0;
-    trT.innerHTML = `<td>TOTAL</td><td></td>
-      <td class="num">${totVol.toFixed(1)}</td>
-      <td class="num">${fmt(totCajas)}</td>
-      <td class="num">${totVolCajas.toFixed(1)}</td>
-      <td class="num">${pctT.toFixed(1)}%</td>
-      <td class="num">${Math.max(0,100-pctT).toFixed(1)}%</td>`;
-    tbVol.appendChild(trT);
-  }
 
   // Tabla bodegas
   const tbB = document.getElementById('tbody-bodegas');

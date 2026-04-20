@@ -1366,8 +1366,9 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   if (areaBreak) {
     areaDatasets.forEach(d => {
       const total = d.ocupado + d.proy + d.disponible;
-      const pctOcup = total ? (d.ocupado / total * 100) : 0;
-      const pctProy = total ? (d.proy    / total * 100) : 0;
+      const pctOcup = total ? (d.ocupado    / total * 100) : 0;
+      const pctProy = total ? (d.proy       / total * 100) : 0;
+      const pctDisp = total ? (d.disponible / total * 100) : 0;
       const card = document.createElement('div');
       card.style.cssText = 'background:var(--bg);border:1px solid var(--border-s);border-radius:4px;padding:10px 12px;font-family:\'DM Sans\',sans-serif';
       card.innerHTML = `
@@ -1375,6 +1376,7 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:#ececec;margin-bottom:8px">
           <div style="width:${pctOcup}%;background:#b8410e"></div>
           <div style="width:${pctProy}%;background:#d7b230"></div>
+          <div style="width:${pctDisp}%;background:#6f9c58"></div>
         </div>
         <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:11px;color:var(--ink)">
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:#b8410e;border-radius:50%"></span>Ocupado</span><span style="text-align:right;font-weight:700">${d.ocupado.toFixed(1)} m²</span>

@@ -4,6 +4,9 @@
 # Salidas regenerables de los scripts
 *.docx
 
+# Scripts locales de generación de Word (no se despliegan)
+generar_word*.py
+
 # Sistema operativo
 Thumbs.db
 .DS_Store

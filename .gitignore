@@ -1,0 +1,13 @@
+# Locks temporales de Office (Word/Excel/PowerPoint)
+~$*
+
+# Salidas regenerables de los scripts
+*.docx
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

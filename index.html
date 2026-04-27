@@ -738,20 +738,18 @@ function parseTP(rows) {
 function parseProyeccion(rows) {
   const obras = [];
   const totales = { existencia:0, y25:0, y26:0, y27:0, y28:0, y29:0, y30:0 };
-  // Data rows start after 3 header rows
-  for (const row of rows.slice(3)) {
+  for (const row of rows) {
     const nombre = (row[0]||'').trim();
-    if (!nombre || /^TOTAL$/i.test(nombre)) {
-      // captura fila de totales
-      if (/^TOTAL$/i.test(nombre)) {
-        totales.existencia = toNum(row[1]);
-        totales.y25 = toNum(row[3]); totales.y26 = toNum(row[5]);
-        totales.y27 = toNum(row[7]); totales.y28 = toNum(row[10]);
-        totales.y29 = toNum(row[13]); totales.y30 = toNum(row[15]);
-      }
+    if (!nombre) continue;
+    if (/^ESTATUS/i.test(nombre)) continue;
+    if (/salidas/i.test(nombre)) continue;
+    if (/^TOTAL$/i.test(nombre)) {
+      totales.existencia = toNum(row[1]);
+      totales.y25 = toNum(row[3]); totales.y26 = toNum(row[5]);
+      totales.y27 = toNum(row[7]); totales.y28 = toNum(row[10]);
+      totales.y29 = toNum(row[13]); totales.y30 = toNum(row[15]);
       continue;
     }
-    if (/salidas/i.test(nombre)) continue;
     const exist = toNum(row[1]);
     if (!exist && !toNum(row[3])) continue;
     obras.push({

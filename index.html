@@ -557,6 +557,18 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="sec-sub">Crecimiento estimado del acervo por obra ferroviaria</div>
       </div>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <div class="card" style="padding:22px 26px">
+        <div class="card-sub" style="margin-bottom:10px">Cajas a archivar (sexenio)</div>
+        <div style="font-family:'Fraunces',serif;font-size:38px;font-weight:500;line-height:1;letter-spacing:-.02em;color:var(--ink)" id="proy-kpi-entradas">—</div>
+        <div class="card-sub" style="margin-top:10px;margin-bottom:0">Suma de entradas 2025–2030</div>
+      </div>
+      <div class="card" style="padding:22px 26px">
+        <div class="card-sub" style="margin-bottom:10px">Volumen acumulado proyectado</div>
+        <div style="font-family:'Fraunces',serif;font-size:38px;font-weight:500;line-height:1;letter-spacing:-.02em;color:var(--ink)" id="proy-kpi-acums">—</div>
+        <div class="card-sub" style="margin-top:10px;margin-bottom:0">Suma de acumulados 2025–2030</div>
+      </div>
+    </div>
     <div class="card" style="margin-bottom:20px">
       <div class="card-title">Crecimiento total proyectado</div>
       <div class="card-sub" id="proy-sub">—</div>
@@ -1265,6 +1277,12 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   const pAnios=['Existencia','2025','2026','2027','2028','2029','2030'];
   const pTotArr=[pT.existencia,pT.y25,pT.y26,pT.y27,pT.y28,pT.y29,pT.y30];
   document.getElementById('proy-sub').textContent=`De ${fmt(pT.existencia)} cajas (existencia) a ${fmt(pT.y30)} en 2030`;
+
+  // KPIs de proyección: total de entradas y suma de acumulados anuales
+  const sumEntradas    = D.proyeccion.obras.reduce((s,o)=>s + o.entrada.reduce((a,b)=>a+b,0), 0);
+  const sumAcumAnuales = D.proyeccion.obras.reduce((s,o)=>s + o.acum.slice(1).reduce((a,b)=>a+b,0), 0);
+  document.getElementById('proy-kpi-entradas').textContent = fmt(sumEntradas);
+  document.getElementById('proy-kpi-acums').textContent    = fmt(sumAcumAnuales);
 
   new Chart(document.getElementById('c-proy-total'),{
     type:'line',

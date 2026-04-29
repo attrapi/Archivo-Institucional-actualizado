@@ -244,11 +244,16 @@ body.report-mode #tab-resumen{display:block !important}
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-text">ATTRAPI<small>Archivo de Concentración</small><small>Dirección de Procesos Administrativos de Construcción</small><small>Estado del archivo <em style="font-style:italic;color:var(--accent);text-transform:none;letter-spacing:0">de concentración</em></small></div>
+      <div class="brand-text">ATTRAPI<small>Archivo de Concentración</small><small>Dirección de Procesos Administrativos de Construcción</small></div>
     </div>
     <img src="ATTRAPI.png" alt="ATTRAPI" style="height:44px;width:auto;object-fit:contain">
   </div>
 </header>
+
+<!-- HERO compacto -->
+<div class="hero">
+  <h1>Estado del archivo <em>de concentración</em></h1>
+</div>
 
 <!-- TAB BAR sticky -->
 <div class="tab-bar-wrap">
@@ -1579,8 +1584,11 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         wrap.appendChild(styleOverride);
         const header = document.createElement('div');
         header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 8px 14px;margin-bottom:10px;border-bottom:2px solid #3d332a;font-family:\'Fraunces\',serif';
-        header.innerHTML = '<div style="flex:1;text-align:left;font-size:18px;font-weight:600;color:#000;letter-spacing:-.005em;line-height:1.2">Dirección de Procesos Administrativos de Construcción</div>'
-                         + '<div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:14px;font-size:18px;font-weight:600;color:#000;letter-spacing:-.005em;line-height:1.2"><span>Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:600">de concentración</em></span><img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:48px;width:auto;object-fit:contain"></div>';
+        header.innerHTML = '<div style="display:flex;flex-direction:column;gap:4px;text-align:left;font-size:18px;font-weight:600;color:#000;letter-spacing:-.005em;line-height:1.25">'
+                         +   '<div>Dirección de Procesos Administrativos de Construcción</div>'
+                         +   '<div>Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:600">de concentración</em></div>'
+                         + '</div>'
+                         + '<img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:48px;width:auto;object-fit:contain;flex-shrink:0">';
         const panelClone = panel.cloneNode(true);
         panelClone.querySelectorAll('#btn-report').forEach(b => b.remove());
         // Normaliza la kpis-wrap dentro del panel (quita sticky/overlays)

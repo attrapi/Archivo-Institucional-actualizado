@@ -264,7 +264,7 @@ body.report-mode #tab-resumen{display:block !important}
     <button data-tab="bodegas">Bodegas</button>
     <button data-tab="ts">Transferencias Secundarias</button>
     <button data-tab="transferencias">Direcciones Extintas</button>
-    <button data-href="https://attrapi.github.io/Subdireccion-de-Archivos/">SAGA ↗</button>
+    <button data-href="http://98.80.187.107:3000/">SAGA ↗</button>
   </div>
 </div>
 
@@ -299,7 +299,7 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="kpi-meta" id="kpi-bodegas-meta">—</div>
       </div>
       <div class="kpi">
-        <div class="kpi-label">Capacidad disponible</div>
+        <div class="kpi-label">m² libres</div>
         <div class="kpi-value" id="kpi-disponible">—</div>
         <div class="kpi-meta" id="kpi-disponible-meta">—</div>
       </div>
@@ -909,14 +909,14 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
   const VOL_CAJA  = 0.35 * 0.50 * 0.25; // 0.04375 m³
   const AREA_CAJA = 0.35 * 0.50;        // 0.175 m² (huella)
 
-  // KPI: Capacidad disponible (volumétrica) sobre todas las bodegas con volumen registrado
-  const capTotalVol = D.bodegas.reduce((s,b)=>s+(b.volumen||0),0);
-  const capUsadaVol = D.bodegas.reduce((s,b)=>s + (b.volumen ? b.cajas*VOL_CAJA : 0),0);
-  const capDispVol  = Math.max(0, capTotalVol - capUsadaVol);
-  const capPctDisp  = capTotalVol ? (capDispVol/capTotalVol*100) : 0;
-  const cajasCabenAdic = Math.floor(capDispVol / VOL_CAJA);
-  document.getElementById('kpi-disponible').innerHTML   = `${capPctDisp.toFixed(1)}<sup>%</sup>`;
-  document.getElementById('kpi-disponible-meta').innerHTML = `${capDispVol.toFixed(1)} m³ libres · ~${fmt(cajasCabenAdic)} cajas`;
+  // KPI: m² libres (superficie) sobre todas las bodegas con superficie registrada
+  const supTotal = D.bodegas.reduce((s,b)=>s+(b.superficie||0),0);
+  const supUsada = D.bodegas.reduce((s,b)=>s + (b.superficie ? b.cajas*AREA_CAJA : 0),0);
+  const supLibre = Math.max(0, supTotal - supUsada);
+  const supPctLibre = supTotal ? (supLibre/supTotal*100) : 0;
+  const cajasCabenAdic = Math.floor(supLibre / AREA_CAJA);
+  document.getElementById('kpi-disponible').innerHTML   = `${fmt(Math.round(supLibre))}<sup>m²</sup>`;
+  document.getElementById('kpi-disponible-meta').innerHTML = `${supPctLibre.toFixed(1)}% libre · ~${fmt(cajasCabenAdic)} cajas`;
 
   // ── RESUMEN · Cajas y ocupación por bodega ──────────
   const bodSup = D.bodegas.filter(b => b.superficie).sort((a,b)=>b.superficie-a.superficie);

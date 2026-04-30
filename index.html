@@ -45,9 +45,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .brand{display:flex;align-items:center;gap:12px}
 .brand-mark{width:36px;height:36px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:19px;border-radius:2px}
 .brand-text{font-family:'Fraunces',serif;font-size:30px;font-weight:500;letter-spacing:.04em;line-height:1;color:var(--ink);padding-left:14px;border-left:2px solid var(--accent)}
-.brand-text small{display:block}
-.brand-text small:first-of-type{font-family:'Fraunces',serif;font-size:15px;font-weight:400;font-style:italic;color:var(--accent);letter-spacing:0;text-transform:none;margin-top:4px}
-.brand-text small:last-of-type{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.16em;margin-top:6px}
+.brand-text small{display:block;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.16em;margin-top:6px}
 .nav-tabs{display:flex;gap:2px}
 .nav-tabs button{background:none;border:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--ink-soft);padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .nav-tabs button:hover{background:var(--bg-w);color:var(--ink)}
@@ -248,7 +246,7 @@ body.report-mode #tab-resumen{display:block !important}
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-text">ATTRAPI<small>Archivo de Concentración</small><small>Dirección de Procesos Administrativos de Construcción</small></div>
+      <div class="brand-text">ATTRAPI<small>Dirección de Procesos Administrativos de Construcción</small></div>
     </div>
     <img src="ATTRAPI.png" alt="ATTRAPI" style="height:65px;width:auto;object-fit:contain">
   </div>
@@ -1592,8 +1590,8 @@ document.getElementById('footer-date').textContent   = new Date().toLocaleString
         const header = document.createElement('div');
         header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 8px 14px;margin-bottom:10px;border-bottom:2px solid #3d332a;font-family:\'Fraunces\',serif';
         header.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;text-align:left;color:#000;line-height:1.15;padding-left:16px;border-left:3px solid #b8410e">'
-                         +   '<div style="font-size:28px;font-weight:700;letter-spacing:-.01em">Dirección de Procesos Administrativos de Construcción</div>'
-                         +   '<div style="font-size:24px;font-weight:600;letter-spacing:-.005em">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></div>'
+                         +   '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Dirección de Procesos Administrativos de Construcción</div>'
+                         +   '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></div>'
                          + '</div>'
                          + '<img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:120px;width:auto;object-fit:contain;flex-shrink:0">';
         const panelClone = panel.cloneNode(true);

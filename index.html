@@ -796,18 +796,21 @@ function parseTransferencias(rows) {
 
 function parseTP(rows) {
   const result = [];
-  let seccion = '';
+  let bucket = '';
   for (const row of rows) {
     const col0 = (row[0]||'').trim();
     const col1 = (row[1]||'').trim();
     const col2 = (row[2]||'').trim();
     const col3 = toNum(row[3]);
-    if (!col0 && !col3) continue;
-    if (col0 && /^(TRANSFERENCIAS|DIRECCIÓN GENERAL|UNIDADES ADMIN|CONTRATISTAS)/i.test(col0)) { seccion = col0.substring(0,60); continue; }
-    if (!col0 && !col1 && /^total$/i.test((row[2]||'').trim())) continue;
-    if (col0 && !col1 && !col3) { seccion = trunc(col0, 60); continue; }
-    if (!col3 && !col1) continue;
-    result.push({ seccion: seccion||'—', unidad: col0||'—', num: col1||'—', descripcion: col2||'—', cajas: col3 });
+    if (!col0 && !col1 && !col3) continue;
+    if (!col0 && /^total$/i.test(col2)) continue;
+    if (col0 && !col1 && !col3) {
+      if (/(UNIDADES ADMIN|TRANSFERENCIAS COORDINADAS)/i.test(col0)) { bucket = 'Unidades Administrativas'; continue; }
+      if (/^CONTRATISTAS/i.test(col0)) { bucket = 'Contratistas'; continue; }
+      continue;
+    }
+    if (!col1 || !col3) continue;
+    result.push({ seccion: bucket||'—', unidad: col0, num: col1, descripcion: col2||'—', cajas: col3 });
   }
   return result.filter(r => r.cajas > 0);
 }

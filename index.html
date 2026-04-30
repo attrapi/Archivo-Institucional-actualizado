@@ -165,8 +165,8 @@ tr.total-row:hover td{background:var(--ink-soft)}
 .empty-state{text-align:center;padding:3rem;color:var(--ink-muted);font-size:13px}
 
 /* FOOTER */
-footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:20px;font-size:11px;color:var(--ink-muted)}
-.foot-img{width:100%;height:auto;display:block}
+footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:20px;font-size:11px;color:var(--ink-muted);content-visibility:auto;contain-intrinsic-size:1px 320px}
+.foot-img{width:100%;height:auto;display:block;content-visibility:auto;contain-intrinsic-size:1400px 220px}
 .foot-row{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%}
 .foot-brand{font-family:'Fraunces',serif;font-size:14px;color:var(--ink-soft)}
 
@@ -675,7 +675,7 @@ body.report-mode #tab-resumen{display:block !important}
 </div><!-- /contenido tabs -->
 
 <footer>
-  <img src="piedepágina2026.png" alt="" class="foot-img">
+  <img src="piedepágina2026.png" alt="" class="foot-img" loading="lazy" decoding="async">
   <div class="foot-row">
     <div class="foot-brand">ATTRAPI · Archivo de Concentración</div>
     <div><span id="footer-date">—</span></div>

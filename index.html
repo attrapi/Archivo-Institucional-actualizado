@@ -1367,41 +1367,49 @@ function initDashboard(D) {
       const originalLabel = btnReport.textContent;
       btnReport.disabled = true;
       btnReport.textContent = 'Generando…';
-      try {
+
+      const STYLE_OVERRIDE_CSS = `
+        #pdf-report, #pdf-report *{color:#000 !important;opacity:1 !important;filter:none !important}
+        #pdf-report .kpi-label,#pdf-report .kpi-meta,#pdf-report .card-sub,#pdf-report .sec-sub,#pdf-report .tank-name,#pdf-report .tank-meta{color:#2a2420 !important;font-weight:600 !important}
+        #pdf-report .kpi-value,#pdf-report .sec-title,#pdf-report .card-title,#pdf-report .tank-pct,#pdf-report h1,#pdf-report h2,#pdf-report h3{color:#000 !important;font-weight:700 !important}
+        #pdf-report em{color:#b8410e !important;font-weight:700 !important}
+        #pdf-report .badge,#pdf-report .num{color:#000 !important}
+        #pdf-report .card,#pdf-report .panel{background:#fff !important;border:1px solid #c9c0a8 !important}
+        #pdf-report .tank-wrap{border-color:#3d332a !important}
+        #pdf-report .tank-pct span{color:#2a2420 !important}
+        #pdf-report .tank-fill.low{background:#4f7a40 !important}
+        #pdf-report .tank-fill.mid{background:#a87b1d !important}
+        #pdf-report .tank-fill.high{background:#a5360a !important}
+      `;
+      const HEADER_HTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 8px 14px;margin-bottom:10px;border-bottom:2px solid #3d332a;font-family:\'Fraunces\',serif">'
+                       +   '<div style="display:flex;flex-direction:column;gap:8px;text-align:left;color:#000;line-height:1.15;padding-left:16px;border-left:3px solid #b8410e">'
+                       +     '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Dirección de Procesos Administrativos de Construcción</div>'
+                       +     '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></div>'
+                       +   '</div>'
+                       +   '<img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:120px;width:auto;object-fit:contain;flex-shrink:0">'
+                       + '</div>';
+
+      async function renderNodeToCanvas(node, sectionLabel = '') {
         const wrap = document.createElement('div');
         wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:1400px;background:#ffffff;padding:20px;font-family:"DM Sans",sans-serif;color:#000';
-        // Override para que todo el texto se vea marcado/opaco en el PDF
-        const styleOverride = document.createElement('style');
-        styleOverride.textContent = `
-          #pdf-report, #pdf-report *{color:#000 !important;opacity:1 !important;filter:none !important}
-          #pdf-report .kpi-label,#pdf-report .kpi-meta,#pdf-report .card-sub,#pdf-report .sec-sub,#pdf-report .tank-name,#pdf-report .tank-meta{color:#2a2420 !important;font-weight:600 !important}
-          #pdf-report .kpi-value,#pdf-report .sec-title,#pdf-report .card-title,#pdf-report .tank-pct,#pdf-report h1,#pdf-report h2,#pdf-report h3{color:#000 !important;font-weight:700 !important}
-          #pdf-report em{color:#b8410e !important;font-weight:700 !important}
-          #pdf-report .badge,#pdf-report .num{color:#000 !important}
-          #pdf-report .card,#pdf-report .panel{background:#fff !important;border:1px solid #c9c0a8 !important}
-          #pdf-report .tank-wrap{border-color:#3d332a !important}
-          #pdf-report .tank-pct span{color:#2a2420 !important}
-          #pdf-report .tank-fill.low{background:#4f7a40 !important}
-          #pdf-report .tank-fill.mid{background:#a87b1d !important}
-          #pdf-report .tank-fill.high{background:#a5360a !important}
-        `;
         wrap.id = 'pdf-report';
+        const styleOverride = document.createElement('style');
+        styleOverride.textContent = STYLE_OVERRIDE_CSS;
         wrap.appendChild(styleOverride);
-        const header = document.createElement('div');
-        header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 8px 14px;margin-bottom:10px;border-bottom:2px solid #3d332a;font-family:\'Fraunces\',serif';
-        header.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;text-align:left;color:#000;line-height:1.15;padding-left:16px;border-left:3px solid #b8410e">'
-                         +   '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Dirección de Procesos Administrativos de Construcción</div>'
-                         +   '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></div>'
-                         + '</div>'
-                         + '<img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:120px;width:auto;object-fit:contain;flex-shrink:0">';
-        const panelClone = panel.cloneNode(true);
-        panelClone.querySelectorAll('#btn-report').forEach(b => b.remove());
-        // Normaliza la kpis-wrap dentro del panel (quita sticky/overlays)
-        panelClone.querySelectorAll('.kpis-wrap').forEach(k => { k.style.position='static'; k.style.padding='0 0 12px'; k.style.borderBottom='none'; });
-        // El layout ya es el deseado para el PDF: fila 1 → Cajas por bodega + Ocupación por superficie · fila 2 → Cajas por unidad + Proyección
-        // Sustituir cada canvas del clon por la imagen del canvas original (Chart.js)
-        const origCanvases  = panel.querySelectorAll('canvas');
-        const cloneCanvases = panelClone.querySelectorAll('canvas');
+        const headerEl = document.createElement('div');
+        headerEl.innerHTML = HEADER_HTML;
+        wrap.appendChild(headerEl);
+        if (sectionLabel) {
+          const labelEl = document.createElement('div');
+          labelEl.style.cssText = 'font:700 13px \'Fraunces\',serif;color:#3d332a;text-transform:uppercase;letter-spacing:.14em;margin:14px 4px 10px;padding-bottom:6px;border-bottom:1px solid #c9c0a8';
+          labelEl.textContent = sectionLabel;
+          wrap.appendChild(labelEl);
+        }
+        const clone = node.cloneNode(true);
+        clone.querySelectorAll('#btn-report').forEach(b => b.remove());
+        clone.querySelectorAll('.kpis-wrap').forEach(k => { k.style.position='static'; k.style.padding='0 0 12px'; k.style.borderBottom='none'; });
+        const origCanvases  = node.querySelectorAll('canvas');
+        const cloneCanvases = clone.querySelectorAll('canvas');
         origCanvases.forEach((orig, i) => {
           const target = cloneCanvases[i];
           if (!target) return;
@@ -1410,8 +1418,7 @@ function initDashboard(D) {
           img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block';
           target.parentElement.replaceChild(img, target);
         });
-        wrap.appendChild(header);
-        wrap.appendChild(panelClone);
+        wrap.appendChild(clone);
         const pdfFooter = document.createElement('img');
         pdfFooter.src = 'piedepágina2026.png';
         pdfFooter.alt = '';
@@ -1423,17 +1430,79 @@ function initDashboard(D) {
           img.complete && img.naturalWidth ? Promise.resolve() :
           new Promise(res => { img.onload = img.onerror = () => res(); })
         ));
-        const canvas = await html2canvas(wrap, {scale:2, backgroundColor:'#faf7f0', useCORS:true, logging:false});
+        const out = await html2canvas(wrap, {scale:2, backgroundColor:'#faf7f0', useCORS:true, logging:false});
         document.body.removeChild(wrap);
+        return out;
+      }
+
+      // Asegura que la pestaña esté renderizada (Chart.js no dibuja en display:none).
+      // Devuelve función para restaurar.
+      async function preparePanel(tabId) {
+        const tab = document.getElementById(tabId);
+        if (!tab) return null;
+        const wasInactive = !tab.classList.contains('active');
+        const prev = { display: tab.style.display, position: tab.style.position, left: tab.style.left, top: tab.style.top, width: tab.style.width };
+        if (wasInactive) {
+          tab.style.position = 'absolute';
+          tab.style.left = '-99999px';
+          tab.style.top = '0';
+          tab.style.display = 'block';
+          tab.style.width = '1400px';
+        }
+        tab.querySelectorAll('canvas').forEach(c => {
+          const ch = (window.Chart && Chart.getChart) ? Chart.getChart(c) : null;
+          if (ch) ch.resize();
+        });
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        return () => {
+          if (!wasInactive) return;
+          tab.style.display = prev.display;
+          tab.style.position = prev.position;
+          tab.style.left = prev.left;
+          tab.style.top = prev.top;
+          tab.style.width = prev.width;
+        };
+      }
+
+      // Mejor visual de cada pestaña (sin contar resumen)
+      const extras = [
+        { tabId: 'tab-bodegas',  label: 'Bodegas · Ocupación por superficie',
+          getNode: t => { const c = t.querySelector('#tank-grid-m2'); return c ? c.closest('.card').parentElement : null; } },
+        { tabId: 'tab-unidades', label: 'Unidades administrativas · Transferidas y Heredadas DGDFM',
+          getNode: t => { const c = t.querySelector('#c-unidades-stacked'); return c ? c.closest('.card') : null; } },
+        { tabId: 'tab-tp',       label: 'Unidad de Construcción · Cajas por sección',
+          getNode: t => t.querySelector('.grid-2-eq') },
+        { tabId: 'tab-ts',       label: 'Transferencias Secundarias · Avance por cohorte',
+          getNode: t => { const c = t.querySelector('#ts-timeline'); return c ? c.closest('.card') : null; } },
+      ];
+
+      try {
+        const pages = [];
+        pages.push(await renderNodeToCanvas(panel));
+        for (const ex of extras) {
+          const restore = await preparePanel(ex.tabId);
+          if (!restore) continue;
+          try {
+            const tab = document.getElementById(ex.tabId);
+            const target = ex.getNode(tab);
+            if (target) pages.push(await renderNodeToCanvas(target, ex.label));
+          } finally {
+            restore();
+          }
+        }
+
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
         const pw = pdf.internal.pageSize.getWidth();
         const ph = pdf.internal.pageSize.getHeight();
-        const ratio = canvas.width / canvas.height;
-        let w = pw, h = pw / ratio;
-        if (h > ph) { h = ph; w = ph * ratio; }
-        const x = (pw - w) / 2, y = (ph - h) / 2;
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, w, h);
+        pages.forEach((cv, i) => {
+          const ratio = cv.width / cv.height;
+          let w = pw, h = pw / ratio;
+          if (h > ph) { h = ph; w = ph * ratio; }
+          const x = (pw - w) / 2, y = (ph - h) / 2;
+          if (i > 0) pdf.addPage();
+          pdf.addImage(cv.toDataURL('image/png'), 'PNG', x, y, w, h);
+        });
         pdf.save('Reporte_ATTRAPI_Resumen.pdf');
       } catch (err) {
         console.error(err);

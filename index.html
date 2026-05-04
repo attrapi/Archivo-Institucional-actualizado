@@ -358,17 +358,10 @@ body.report-mode #tab-resumen{display:block !important}
       </div>
     </div>
 
-    <div class="grid-2-eq" style="margin-bottom:20px">
-      <div class="card">
-        <div class="card-title">Cajas por espacio</div>
-        <div class="card-sub">Propio vs. prestado</div>
-        <div class="chart-wrap"><canvas id="c-bodegas-bar"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Legajos y Hojas</div>
-        <div class="card-sub">Volumen documental estimado</div>
-        <div class="chart-wrap"><canvas id="c-bodegas-multi"></canvas></div>
-      </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Legajos y Hojas</div>
+      <div class="card-sub">Volumen documental estimado</div>
+      <div class="chart-wrap"><canvas id="c-bodegas-multi"></canvas></div>
     </div>
 
     <!-- Detalle por bodega · Superficie -->
@@ -956,26 +949,6 @@ function initDashboard(D) {
   });
 
   // ── BODEGAS ──────────────────────────────────────────
-  new Chart(document.getElementById('c-bodegas-bar'), {
-    type:'bar',
-    data:{ labels:D.bodegas.map(b=>b.nombre),
-      datasets:[{ data:D.bodegas.map(b=>b.cajas), backgroundColor:D.bodegas.map(b=>b.tipo==='Propio'?'#b8410e':'#1d3557'), borderRadius:3 }] },
-    options:{ responsive:true, maintainAspectRatio:false,
-      layout:{ padding:{ top:24 } },
-      plugins:{
-        legend:{display:false},
-        tooltip:{enabled:false},
-        datalabels:{
-          display:true,
-          anchor:'end', align:'top',
-          color:'#4a4036',
-          font:{ family:"'DM Sans',sans-serif", size:11, weight:'600' },
-          formatter: v => fmt(v)
-        }
-      },
-      scales:{ x:{grid:{display:false}}, y:{grid:{color:'#f0ead9'}} } }
-  });
-
   new Chart(document.getElementById('c-bodegas-multi'), {
     type:'bar',
     data:{ labels:D.bodegas.map(b=>b.nombre),

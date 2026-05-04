@@ -265,7 +265,6 @@ body.report-mode #tab-resumen{display:block !important}
     <button data-tab="unidades">Transferencias Primarias</button>
     <button data-tab="bodegas">Bodegas</button>
     <button data-tab="ts">Transferencias Secundarias</button>
-    <button data-tab="transferencias">Direcciones Extintas</button>
     <button data-href="http://98.80.187.107:3000/">SAGA ↗</button>
   </div>
 </div>
@@ -593,41 +592,6 @@ body.report-mode #tab-resumen{display:block !important}
   </section>
 </div>
 
-<!-- ═══ TAB: TRANSFERENCIAS ═══ -->
-<div class="tab-panel" id="tab-transferencias">
-  <section class="panel">
-    <div class="sec-head">
-      <div>
-        <div class="sec-title">Direcciones Extintas</div>
-        <div class="sec-sub">Detalle de transferencias por dirección extinta y bodega</div>
-      </div>
-      <input class="search-box" id="search-transf" type="text" placeholder="Buscar dirección, bodega…">
-    </div>
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title">Cajas por bodega destino</div>
-      <div class="card-sub" id="transf-bodega-sub">Distribución de transferencias</div>
-      <div class="chart-wrap short"><canvas id="c-transf-bodega"></canvas></div>
-      <div style="text-align:center;margin-top:8px;font-size:13px;color:var(--ink-muted)"><strong id="transf-bodega-total" style="font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:var(--ink)">—</strong> Total</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Registro completo de transferencias</div>
-      <div class="card-sub" id="transf-sub">—</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>Dirección extinta</th>
-            <th class="num">Cajas</th>
-            <th>Bodega</th>
-            <th>Fecha</th>
-          </tr></thead>
-          <tbody id="tbody-transf"></tbody>
-        </table>
-        <p class="empty-state" id="transf-empty" style="display:none">Sin resultados.</p>
-      </div>
-    </div>
-  </section>
-</div>
-
 <!-- ═══ TAB: TP MARZO 2026 ═══ -->
 <div class="tab-panel" id="tab-tp">
   <section class="panel">
@@ -675,7 +639,6 @@ body.report-mode #tab-resumen{display:block !important}
 </div><!-- /contenido tabs -->
 
 <footer>
-  <img src="piedepágina2026.png" alt="" class="foot-img" loading="lazy" decoding="async">
   <div class="foot-row">
     <div class="foot-brand">ATTRAPI · Archivo de Concentración</div>
   </div>
@@ -1263,47 +1226,6 @@ function initDashboard(D) {
   renderUnidades();
   document.getElementById('search-unidades').addEventListener('input',e=>renderUnidades(e.target.value));
 
-  // ── TRANSFERENCIAS ───────────────────────────────────
-  // Chart por bodega
-  const bodegaCount={};
-  D.transferencias.forEach(t=>{bodegaCount[t.bodega]=(bodegaCount[t.bodega]||0)+t.cajas});
-  document.getElementById('transf-bodega-total').textContent = fmt(Object.values(bodegaCount).reduce((s,v)=>s+v,0));
-  new Chart(document.getElementById('c-transf-bodega'),{
-    type:'bar',
-    data:{labels:Object.keys(bodegaCount),datasets:[{data:Object.values(bodegaCount),backgroundColor:PALETTE,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:20}},
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>`${fmt(ctx.parsed.y)} cajas`}},
-        datalabels:{
-          display:true,
-          anchor:'end', align:'top', offset:2,
-          color:'#4a4036',
-          font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
-          formatter: v => fmt(v)
-        }
-      },
-      scales:{x:{grid:{display:false}},y:{grid:{color:'#f0ead9'}}}}
-  });
-
-  document.getElementById('transf-sub').textContent=`${D.transferencias.length} registros`;
-  const tbT=document.getElementById('tbody-transf');
-  function renderTransf(q=''){
-    tbT.innerHTML='';
-    const emp=document.getElementById('transf-empty');
-    const fil=D.transferencias.filter(t=>`${t.area} ${t.bodega}`.toLowerCase().includes(q.toLowerCase()));
-    if(!fil.length){emp.style.display='block';return;}
-    emp.style.display='none';
-    fil.forEach(t=>{const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${t.area}</td><td class="num">${fmt(t.cajas)}</td><td>${t.bodega}</td><td>${t.fecha}</td>`;
-      tbT.appendChild(tr);});
-    if(!q){const tr=document.createElement('tr');tr.className='total-row';
-      tr.innerHTML=`<td>TOTAL</td><td class="num">${fmt(D.transferencias.reduce((s,t)=>s+t.cajas,0))}</td><td></td><td></td>`;tbT.appendChild(tr);}
-  }
-  renderTransf();
-  document.getElementById('search-transf').addEventListener('input',e=>renderTransf(e.target.value));
-
   // ── TP MARZO 2026 ─────────────────────────────────────
   const tpTotal=D.tp.reduce((s,t)=>s+t.cajas,0);
   document.getElementById('tp-total').textContent=fmt(tpTotal);
@@ -1321,13 +1243,13 @@ function initDashboard(D) {
         tooltip:{callbacks:{title:ctx=>Object.keys(tpSec)[ctx[0].dataIndex], label:ctx=>`${fmt(ctx.parsed.y)} cajas`}},
         datalabels:{
           display:true,
-          anchor:'end', align:'start', offset:4,
-          color:'#ffffff',
-          font:{ family:"'DM Sans',sans-serif", size:11, weight:'700' },
+          anchor:'end', align:'end', offset:4, clamp:true,
+          color:'#1a1612',
+          font:{ family:"'DM Sans',sans-serif", size:12, weight:'700' },
           formatter: v => fmt(v)
         }
       },
-      layout:{ padding:{ top:10 } },
+      layout:{ padding:{ top:24 } },
       scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:0,minRotation:0,autoSkip:false}},y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}}}}
   });
 

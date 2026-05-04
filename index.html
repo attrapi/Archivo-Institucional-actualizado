@@ -372,8 +372,8 @@ body.report-mode #tab-resumen{display:block !important}
         <table>
           <thead><tr>
             <th>Espacio</th><th>Tipo</th>
-            <th class="num">Superficie (m²)</th>
             <th class="num">Cajas</th>
+            <th class="num">Superficie (m²)</th>
             <th class="num">Legajos</th>
             <th class="num">Hojas estimadas</th>
             <th class="num">Huella cajas (m²)</th>
@@ -1011,8 +1011,9 @@ function initDashboard(D) {
       totCajasS += b.cajas; totLeg += b.legajos; totHoj += b.hojas;
       const tr = document.createElement('tr');
       tr.innerHTML = `<td class="bold">${b.nombre}</td><td><span class="badge ${b.tipo.toLowerCase()}">${b.tipo}</span></td>
+        <td class="num">${fmt(b.cajas)}</td>
         <td class="num">${b.superficie ? b.superficie.toLocaleString('es-MX') : '—'}</td>
-        <td class="num">${fmt(b.cajas)}</td><td class="num">${fmt(b.legajos)}</td>
+        <td class="num">${fmt(b.legajos)}</td>
         <td class="num">${fmt(b.hojas)}</td>
         <td class="num">${huella.toFixed(1)}</td>
         <td class="num">${pct!==null ? pct.toFixed(1)+'%' : '—'}</td>
@@ -1022,8 +1023,9 @@ function initDashboard(D) {
     const pctTotS = totSup ? (totHuella/totSup*100) : 0;
     const trT = document.createElement('tr'); trT.className='total-row';
     trT.innerHTML=`<td>TOTAL</td><td></td>
+      <td class="num">${fmt(totCajasS)}</td>
       <td class="num">${totSup.toLocaleString('es-MX')}</td>
-      <td class="num">${fmt(totCajasS)}</td><td class="num">${fmt(totLeg)}</td>
+      <td class="num">${fmt(totLeg)}</td>
       <td class="num">${fmt(totHoj)}</td>
       <td class="num">${totHuella.toFixed(1)}</td>
       <td class="num">${pctTotS.toFixed(1)}%</td>

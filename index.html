@@ -457,38 +457,6 @@ body.report-mode #tab-resumen{display:block !important}
       <div class="card-sub" id="proy-sub">—</div>
       <div class="chart-wrap tall"><canvas id="c-proy-total"></canvas></div>
     </div>
-    <div class="card" style="margin-bottom:20px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
-        <div>
-          <div class="card-title">Proyección por obra</div>
-          <div class="card-sub">Distribución del crecimiento</div>
-        </div>
-        <div class="toggle-group">
-          <button class="active" data-view="acum">Acumulado</button>
-          <button data-view="entrada">Entradas anuales</button>
-        </div>
-      </div>
-      <div class="chart-wrap tall"><canvas id="c-proy-obras"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Tabla de proyección</div>
-      <div class="card-sub">Acumulado por año y obra</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>Obra</th>
-            <th class="num">Existencia</th>
-            <th class="num">2025</th>
-            <th class="num">2026</th>
-            <th class="num">2027</th>
-            <th class="num">2028</th>
-            <th class="num">2029</th>
-            <th class="num">2030</th>
-          </tr></thead>
-          <tbody id="tbody-proy"></tbody>
-        </table>
-      </div>
-    </div>
   </section>
 </div>
 
@@ -615,6 +583,38 @@ body.report-mode #tab-resumen{display:block !important}
           <div style="font-family:'Fraunces',serif;font-size:64px;font-weight:400;line-height:1;color:var(--ink)" id="tp-total">—</div>
           <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em">cajas transferidas</div>
         </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div>
+          <div class="card-title">Proyección por obra</div>
+          <div class="card-sub">Distribución del crecimiento</div>
+        </div>
+        <div class="toggle-group">
+          <button class="active" data-view="acum">Acumulado</button>
+          <button data-view="entrada">Entradas anuales</button>
+        </div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c-proy-obras"></canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Tabla de proyección</div>
+      <div class="card-sub">Acumulado por año y obra</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Obra</th>
+            <th class="num">Existencia</th>
+            <th class="num">2025</th>
+            <th class="num">2026</th>
+            <th class="num">2027</th>
+            <th class="num">2028</th>
+            <th class="num">2029</th>
+            <th class="num">2030</th>
+          </tr></thead>
+          <tbody id="tbody-proy"></tbody>
+        </table>
       </div>
     </div>
     <div class="card">

@@ -664,6 +664,13 @@ function parseBodegas(rows) {
     const volumen    = parseFloat(String(row[5]||'').replace(/,/g,'')) || 0;
     result.push({ nombre: col0, tipo, superficie, volumen, cajas, legajos: cajas*3, hojas: cajas*3*800 });
   }
+  // Orden: bodegas (E, F, G, J…) primero, luego contenedores; alfabético dentro de cada grupo
+  result.sort((a, b) => {
+    const ac = /contenedor/i.test(a.nombre) ? 1 : 0;
+    const bc = /contenedor/i.test(b.nombre) ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+    return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base', numeric: true });
+  });
   return result;
 }
 
@@ -840,7 +847,7 @@ function initDashboard(D) {
   document.getElementById('kpi-disponible-meta').innerHTML = `${fmt(Math.round(supLibre))} m² libres · ~${fmt(cajasCabenAdic)} cajas`;
 
   // ── RESUMEN · Cajas y ocupación por bodega ──────────
-  const bodSup = D.bodegas.filter(b => b.superficie).sort((a,b)=>b.superficie-a.superficie);
+  const bodSup = D.bodegas.filter(b => b.superficie);
   new Chart(document.getElementById('c-bodegas-super'), {
     type:'bar',
     data:{

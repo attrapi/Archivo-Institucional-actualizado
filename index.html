@@ -570,21 +570,6 @@ body.report-mode #tab-resumen{display:block !important}
       </div>
       <input class="search-box" id="search-tp" type="text" placeholder="Buscar unidad, contratista…">
     </div>
-    <div class="grid-2-eq" style="margin-bottom:20px">
-      <div class="card">
-        <div class="card-title">Cajas por sección</div>
-        <div class="card-sub">Unidades vs. Contratistas</div>
-        <div class="chart-wrap short"><canvas id="c-tp-bar"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Total de cajas registradas</div>
-        <div class="card-sub">Acumulado Unidad de Construcción</div>
-        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:220px;gap:6px">
-          <div style="font-family:'Fraunces',serif;font-size:64px;font-weight:400;line-height:1;color:var(--ink)" id="tp-total">—</div>
-          <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em">cajas transferidas</div>
-        </div>
-      </div>
-    </div>
     <div class="card" style="margin-bottom:20px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
         <div>
@@ -615,6 +600,21 @@ body.report-mode #tab-resumen{display:block !important}
           </tr></thead>
           <tbody id="tbody-proy"></tbody>
         </table>
+      </div>
+    </div>
+    <div class="grid-2-eq" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-title">Cajas por sección</div>
+        <div class="card-sub">Unidades vs. Contratistas</div>
+        <div class="chart-wrap short"><canvas id="c-tp-bar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Total de cajas registradas</div>
+        <div class="card-sub">Acumulado Unidad de Construcción</div>
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:220px;gap:6px">
+          <div style="font-family:'Fraunces',serif;font-size:64px;font-weight:400;line-height:1;color:var(--ink)" id="tp-total">—</div>
+          <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em">cajas transferidas</div>
+        </div>
       </div>
     </div>
     <div class="card">

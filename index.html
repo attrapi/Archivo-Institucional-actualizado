@@ -73,7 +73,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   max-width:100%;
 }
 .kpis-inner{max-width:1400px;margin:0 auto}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px 4px 0 0;overflow:hidden}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px 4px 0 0;overflow:hidden}
 .kpi{background:var(--bg-e);padding:14px 18px;transition:background .2s}
 .kpi:hover{background:var(--bg-w)}
 .kpi-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);margin-bottom:4px}
@@ -169,6 +169,64 @@ footer{max-width:1400px;margin:60px auto 0;padding:36px 40px;border-top:1px soli
 .foot-img{width:100%;height:auto;display:block;content-visibility:auto;contain-intrinsic-size:1400px 220px}
 .foot-row{display:flex;justify-content:center;align-items:center;gap:20px;width:100%;text-align:center}
 .foot-brand{font-family:'Fraunces',serif;font-size:14px;color:var(--ink-soft)}
+
+/* PROYECTADO DOS · skyline moderno */
+.proy-skyline{
+  position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  gap:14px;align-items:end;height:480px;padding:24px 8px 0;
+  background:
+    linear-gradient(180deg,rgba(184,65,14,.025) 0%,rgba(184,65,14,0) 60%),
+    repeating-linear-gradient(0deg,transparent 0,transparent 47px,rgba(26,22,18,.04) 47px,rgba(26,22,18,.04) 48px);
+  border-radius:6px;
+}
+.proy-col{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:8px}
+.proy-col .proy-delta{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  display:inline-flex;align-items:center;gap:4px;
+  font:700 11px 'JetBrains Mono',monospace;letter-spacing:.02em;
+  padding:4px 9px;border-radius:999px;border:1px solid var(--border-s);
+  background:var(--bg-e);color:var(--sage);white-space:nowrap;box-shadow:var(--sh-sm);
+  z-index:3;
+}
+.proy-col .proy-delta.flat{color:var(--ink-muted)}
+.proy-col .proy-value{
+  font:600 16px 'Fraunces',serif;color:var(--ink);letter-spacing:-.01em;line-height:1;
+  margin-bottom:6px;z-index:2;
+}
+.proy-col .proy-value sup{font:500 10px 'DM Sans',sans-serif;color:var(--ink-muted);margin-left:2px}
+.proy-col .proy-bar{
+  position:relative;width:74%;max-width:120px;
+  background:linear-gradient(180deg,#d97757 0%,#b8410e 55%,#8a300a 100%);
+  border-radius:6px 6px 0 0;
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.18),0 8px 22px -10px rgba(184,65,14,.55);
+  transition:height 1.1s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.proy-col .proy-bar::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.45),transparent);
+}
+.proy-col .proy-bar::after{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0,rgba(255,255,255,.07) 1px,transparent 1px,transparent 18px);
+  pointer-events:none;
+}
+.proy-col.is-existencia .proy-bar{
+  background:linear-gradient(180deg,#a59a82 0%,#6e6452 100%);
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.18),0 6px 18px -10px rgba(110,100,82,.55);
+}
+.proy-col .proy-year{
+  font:700 12px 'JetBrains Mono',monospace;color:var(--ink);
+  letter-spacing:.04em;padding:8px 0 4px;border-top:2px dashed var(--border-s);
+  width:100%;text-align:center;margin-top:10px;
+}
+.proy-col.is-existencia .proy-year{color:var(--ink-muted);border-top-color:var(--ink-muted)}
+.proy-col .proy-tick{
+  position:absolute;left:50%;bottom:30px;width:1px;height:calc(100% - 30px);
+  border-left:1.5px dashed rgba(184,65,14,.35);transform:translateX(-50%);
+  pointer-events:none;z-index:1;
+}
+.proy-col.is-existencia .proy-tick{border-left-color:rgba(110,100,82,.35)}
 
 /* TANK CARDS */
 .tank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px;margin-bottom:20px}
@@ -299,11 +357,6 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="kpi-value" id="kpi-hojas">—</div>
         <div class="kpi-meta">800 hojas por legajo</div>
       </div>
-      <div class="kpi">
-        <div class="kpi-label">Espacios de archivo</div>
-        <div class="kpi-value" id="kpi-bodegas">—</div>
-        <div class="kpi-meta" id="kpi-bodegas-meta">—</div>
-      </div>
     </div>
     </div><!-- /kpis-inner -->
   </div><!-- /kpis-wrap -->
@@ -358,12 +411,6 @@ body.report-mode #tab-resumen{display:block !important}
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title">Legajos y Hojas</div>
-      <div class="card-sub">Volumen documental estimado</div>
-      <div class="chart-wrap"><canvas id="c-bodegas-multi"></canvas></div>
-    </div>
-
     <!-- Detalle por bodega · Superficie -->
     <div class="card">
       <div class="card-title">Detalle por bodega · Superficie</div>
@@ -407,9 +454,20 @@ body.report-mode #tab-resumen{display:block !important}
       </div>
     </div>
     <div class="card" style="margin-bottom:20px">
-      <div class="card-title">Crecimiento total proyectado</div>
-      <div class="card-sub" id="proy-sub">—</div>
-      <div class="chart-wrap tall"><canvas id="c-proy-total"></canvas></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">
+        <div>
+          <div class="card-title">Crecimiento total proyectado</div>
+          <div class="card-sub" id="proy-sub" style="margin-bottom:0">—</div>
+        </div>
+        <div class="toggle-group">
+          <button class="active" data-proy-view="pendiente">Pendiente</button>
+          <button data-proy-view="proyectado2">Proyectado dos</button>
+        </div>
+      </div>
+      <div class="chart-wrap tall" id="proy-view-pendiente" style="height:460px"><canvas id="c-proy-total"></canvas></div>
+      <div id="proy-view-proyectado2" style="display:none">
+        <div id="proy-skyline" class="proy-skyline"></div>
+      </div>
     </div>
   </section>
 </div>
@@ -428,6 +486,11 @@ body.report-mode #tab-resumen{display:block !important}
       <div class="card-title">Transferidas y Heredadas DGDFM</div>
       <div class="card-sub">Composición por unidad</div>
       <div class="chart-wrap tall"><canvas id="c-unidades-stacked"></canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Legajos y Hojas</div>
+      <div class="card-sub">Volumen documental estimado</div>
+      <div class="chart-wrap"><canvas id="c-bodegas-multi"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">Detalle por unidad</div>
@@ -799,9 +862,64 @@ const minBarHeightPlugin = {
   }
 };
 
+// Plugin: caja-archivo + línea punteada bajo cada punto del chart de proyección
+const archiveBoxesPlugin = {
+  id: 'archiveBoxes',
+  afterDatasetsDraw(chart, _args, opts) {
+    if (!opts || !opts.enabled) return;
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data) return;
+    const ctx = chart.ctx;
+    const area = chart.chartArea;
+    meta.data.forEach((pt, i) => {
+      if (!pt) return;
+      const x = pt.x;
+      const y = pt.y;
+      const bottom = area.bottom;
+
+      // Línea vertical punteada desde el punto al eje
+      ctx.save();
+      ctx.strokeStyle = 'rgba(184,65,14,.45)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, y + 9);
+      ctx.lineTo(x, bottom - 22);
+      ctx.stroke();
+      ctx.restore();
+
+      // Cajita (icono) sobre el eje, debajo de la línea punteada
+      const bw = 20, bh = 16;
+      const bx = x - bw / 2;
+      const by = bottom - bh - 4;
+      ctx.save();
+      // sombra
+      ctx.fillStyle = 'rgba(26,22,18,.18)';
+      ctx.fillRect(bx + 1, by + bh - 1, bw, 2);
+      // cuerpo
+      const grad = ctx.createLinearGradient(0, by, 0, by + bh);
+      grad.addColorStop(0, '#d97757');
+      grad.addColorStop(1, '#a03608');
+      ctx.fillStyle = grad;
+      ctx.fillRect(bx, by + 5, bw, bh - 5);
+      // tapa
+      ctx.fillStyle = '#8a300a';
+      ctx.fillRect(bx - 1, by, bw + 2, 6);
+      // correa central
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.fillRect(bx + bw / 2 - 2, by + 5, 4, bh - 5);
+      // borde superior brillo
+      ctx.fillStyle = 'rgba(255,255,255,.25)';
+      ctx.fillRect(bx, by + 5, bw, 1);
+      ctx.restore();
+    });
+  }
+};
+
 function setChartDefaults() {
   Chart.register(ChartDataLabels);
   Chart.register(minBarHeightPlugin);
+  Chart.register(archiveBoxesPlugin);
   Chart.defaults.font.family = "'DM Sans', sans-serif";
   Chart.defaults.font.size   = 12;
   Chart.defaults.color       = '#4a4036';
@@ -830,10 +948,6 @@ function initDashboard(D) {
   document.getElementById('kpi-cajas').textContent     = fmt(TOTAL_CAJAS);
   document.getElementById('kpi-legajos').textContent   = fmt(TOTAL_CAJAS*3);
   document.getElementById('kpi-hojas').innerHTML       = `${(TOTAL_CAJAS*3*800/1e6).toFixed(2)}<sup>M</sup>`;
-  document.getElementById('kpi-bodegas').textContent   = D.bodegas.length;
-  const propio   = D.bodegas.filter(b=>b.tipo==='Propio').length;
-  const prestado = D.bodegas.filter(b=>b.tipo==='Prestado').length;
-  document.getElementById('kpi-bodegas-meta').innerHTML= `<span>${propio} propio</span> · ${prestado} prestados`;
 
   const AREA_CAJA = 0.35 * 0.50; // 0.175 m² (huella)
 
@@ -1158,25 +1272,115 @@ function initDashboard(D) {
   document.getElementById('proy-kpi-entradas').textContent = fmt(sumEntradas);
   document.getElementById('proy-kpi-acums').textContent    = fmt(sumAcumAnuales);
 
+  // Pendiente más dramática: ajusta el rango Y para que el crecimiento se vea más pronunciado
+  const pMin = Math.min(...pTotArr);
+  const pMax = Math.max(...pTotArr);
+  const pSpan = Math.max(1, pMax - pMin);
+  const yMinDramatic = Math.max(0, Math.floor((pMin - pSpan * 0.45) / 100) * 100);
+  const yMaxDramatic = Math.ceil((pMax + pSpan * 0.10) / 100) * 100;
+
   new Chart(document.getElementById('c-proy-total'),{
     type:'line',
     data:{labels:pAnios,datasets:[{label:'Cajas acumuladas',data:pTotArr,
-      borderColor:'#b8410e',backgroundColor:'rgba(184,65,14,.1)',borderWidth:2.5,tension:.35,fill:true,
-      pointBackgroundColor:'#b8410e',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:6,pointHoverRadius:8}]},
+      borderColor:'#b8410e',
+      backgroundColor: (ctx) => {
+        const {chart} = ctx; const a = chart.chartArea; if(!a) return 'rgba(184,65,14,.12)';
+        const g = chart.ctx.createLinearGradient(0,a.top,0,a.bottom);
+        g.addColorStop(0,'rgba(184,65,14,.32)');
+        g.addColorStop(1,'rgba(184,65,14,.02)');
+        return g;
+      },
+      borderWidth:3, tension:.42, fill:true, cubicInterpolationMode:'monotone',
+      pointBackgroundColor:'#b8410e', pointBorderColor:'#fff', pointBorderWidth:2,
+      pointRadius:7, pointHoverRadius:10}]},
     options:{responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:28}},
+      layout:{padding:{top:36, bottom:32, left:18, right:18}},
       plugins:{
         legend:{display:false},
         tooltip:{enabled:false},
+        archiveBoxes:{ enabled:true },
         datalabels:{
           display:true,
-          anchor:'end',align:'top',
-          color:'#4a4036',
-          font:{family:"'DM Sans',sans-serif",size:11,weight:'600'},
+          anchor:'end', align:'top', offset:8,
+          color:'#1a1612',
+          backgroundColor:'rgba(255,255,255,.85)',
+          borderColor:'rgba(184,65,14,.25)', borderWidth:1, borderRadius:4,
+          padding:{top:3,bottom:3,left:7,right:7},
+          font:{family:"'JetBrains Mono',monospace", size:11, weight:'700'},
           formatter: v => fmt(v)
         }
       },
-      scales:{x:{grid:{display:false}},y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}}}}
+      scales:{
+        x:{ grid:{display:false}, ticks:{ padding:24, font:{size:12,weight:'700'}, color:'#1a1612' } },
+        y:{ min:yMinDramatic, max:yMaxDramatic, grid:{color:'#f0ead9'}, ticks:{callback:v=>fmtS(v)} }
+      }}
+  });
+
+  // ── Proyectado dos · skyline moderno (HTML/CSS) ─────
+  (function buildProyectadoDos(){
+    const host = document.getElementById('proy-skyline');
+    if (!host) return;
+    const minV = Math.min(...pTotArr);
+    const maxV = Math.max(...pTotArr);
+    const span = Math.max(1, maxV - minV);
+    pAnios.forEach((label, i) => {
+      const v = pTotArr[i];
+      const prev = i > 0 ? pTotArr[i-1] : null;
+      // altura: 28% mínima para que la existencia se vea, 92% máxima
+      const norm = (v - minV) / span;
+      const heightPct = 28 + norm * 64;
+      const isExist = i === 0;
+      let deltaHTML = '';
+      if (prev !== null && prev > 0) {
+        const diff = v - prev;
+        const pct = (diff / prev) * 100;
+        const sign = diff > 0 ? '+' : (diff < 0 ? '−' : '±');
+        const cls  = diff === 0 ? 'flat' : '';
+        deltaHTML = `<div class="proy-delta ${cls}">▲ ${sign}${fmt(Math.abs(diff))} · ${pct.toFixed(1)}%</div>`;
+      } else {
+        deltaHTML = `<div class="proy-delta flat">base</div>`;
+      }
+      const col = document.createElement('div');
+      col.className = 'proy-col' + (isExist ? ' is-existencia' : '');
+      col.innerHTML = `
+        ${deltaHTML}
+        <div class="proy-tick"></div>
+        <div class="proy-value">${fmt(v)}<sup>cajas</sup></div>
+        <div class="proy-bar" data-h="${heightPct.toFixed(1)}" style="height:0%"></div>
+        <div class="proy-year">${label}</div>`;
+      host.appendChild(col);
+    });
+    // Animación al activarse la vista
+    function animateBars(){
+      host.querySelectorAll('.proy-bar').forEach((el, i) => {
+        setTimeout(() => { el.style.height = el.dataset.h + '%'; }, 80 * i);
+      });
+    }
+    host.dataset.animate = 'pending';
+    window._proySkylineAnimate = animateBars;
+  })();
+
+  // Toggle Pendiente / Proyectado dos
+  const proyBtns = document.querySelectorAll('[data-proy-view]');
+  const proyViews = {
+    pendiente:    document.getElementById('proy-view-pendiente'),
+    proyectado2:  document.getElementById('proy-view-proyectado2')
+  };
+  proyBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      proyBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.proyView;
+      Object.entries(proyViews).forEach(([k, el]) => {
+        if (!el) return;
+        el.style.display = (k === view) ? (k === 'proyectado2' ? 'block' : '') : 'none';
+      });
+      if (view === 'proyectado2' && typeof window._proySkylineAnimate === 'function') {
+        // reset y vuelve a animar
+        document.querySelectorAll('#proy-skyline .proy-bar').forEach(el => el.style.height = '0%');
+        requestAnimationFrame(() => requestAnimationFrame(window._proySkylineAnimate));
+      }
+    });
   });
 
   const mkProyDatasets = (view) => D.proyeccion.obras.map((o,i)=>({

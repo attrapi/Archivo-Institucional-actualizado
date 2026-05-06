@@ -372,16 +372,27 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="chart-wrap"><canvas id="c-bodegas-super"></canvas></div>
       </div>
     </div>
-    <div class="grid-2">
+    <div style="margin-bottom:20px">
       <div class="card">
         <div class="card-title">Cajas por unidad ATTRAPI</div>
         <div class="card-sub">Ordenadas por volumen total</div>
         <div class="chart-wrap"><canvas id="c-unidades-bar"></canvas></div>
       </div>
-      <div class="card">
-        <div class="card-title">Proyección acumulada 2025–2030</div>
-        <div class="card-sub">Total de cajas proyectadas</div>
-        <div class="chart-wrap short"><canvas id="c-proy-resumen"></canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:20px" data-proy-group="resumen">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">
+        <div>
+          <div class="card-title">Crecimiento total proyectado</div>
+          <div class="card-sub" id="proy-sub-r" style="margin-bottom:0">—</div>
+        </div>
+        <div class="toggle-group">
+          <button class="active" data-proy-view="pendiente">Pendiente</button>
+          <button data-proy-view="proyectado2">Proyectado dos</button>
+        </div>
+      </div>
+      <div class="chart-wrap tall" id="proy-view-pendiente-r" style="height:460px"><canvas id="c-proy-total-r"></canvas></div>
+      <div id="proy-view-proyectado2-r" style="display:none">
+        <div id="proy-skyline-r" class="proy-skyline"></div>
       </div>
     </div>
   </section>
@@ -452,7 +463,7 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="card-sub" style="margin-top:10px;margin-bottom:0">Suma de acumulados 2025–2030</div>
       </div>
     </div>
-    <div class="card" style="margin-bottom:20px">
+    <div class="card" style="margin-bottom:20px" data-proy-group="main">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">
         <div>
           <div class="card-title">Crecimiento total proyectado</div>
@@ -1045,29 +1056,6 @@ function initDashboard(D) {
       scales:{ x:{grid:{display:false},ticks:{font:{size:12,weight:'600'},maxRotation:0,minRotation:0}}, y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}} } }
   });
 
-  const pTotales = D.proyeccion.totales;
-  new Chart(document.getElementById('c-proy-resumen'), {
-    type:'line',
-    data:{ labels:['Existencia','2025','2026','2027','2028','2029','2030'],
-      datasets:[{ label:'Cajas', data:[pTotales.existencia,pTotales.y25,pTotales.y26,pTotales.y27,pTotales.y28,pTotales.y29,pTotales.y30],
-        borderColor:'#b8410e', backgroundColor:'rgba(184,65,14,.08)', borderWidth:2, tension:.35, fill:true,
-        pointBackgroundColor:'#b8410e', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] },
-    options:{ responsive:true, maintainAspectRatio:false,
-      layout:{ padding:{ top:28 } },
-      plugins:{
-        legend:{display:false},
-        tooltip:{enabled:false},
-        datalabels:{
-          display:true,
-          anchor:'end', align:'top',
-          color:'#4a4036',
-          font:{ family:"'DM Sans',sans-serif", size:11, weight:'600' },
-          formatter: v => fmt(v)
-        }
-      },
-      scales:{ x:{grid:{display:false}}, y:{grid:{color:'#f0ead9'},ticks:{callback:v=>fmtS(v)}} } }
-  });
-
   // ── BODEGAS ──────────────────────────────────────────
   new Chart(document.getElementById('c-bodegas-multi'), {
     type:'bar',
@@ -1263,7 +1251,8 @@ function initDashboard(D) {
   const pT=D.proyeccion.totales;
   const pAnios=['Existencia','2025','2026','2027','2028','2029','2030'];
   const pTotArr=[pT.existencia,pT.y25,pT.y26,pT.y27,pT.y28,pT.y29,pT.y30];
-  document.getElementById('proy-sub').textContent=`De ${fmt(pT.existencia)} cajas (existencia) a ${fmt(pT.y30)} en 2030`;
+  const pSubText = `De ${fmt(pT.existencia)} cajas (existencia) a ${fmt(pT.y30)} en 2030`;
+  ['proy-sub','proy-sub-r'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = pSubText; });
 
   // KPIs de proyección: total de entradas y suma de acumulados anuales
   const sumEntradas    = D.proyeccion.obras.reduce((s,o)=>s + o.entrada.reduce((a,b)=>a+b,0), 0);
@@ -1278,54 +1267,58 @@ function initDashboard(D) {
   const yMinDramatic = Math.max(0, Math.floor((pMin - pSpan * 0.45) / 100) * 100);
   const yMaxDramatic = Math.ceil((pMax + pSpan * 0.10) / 100) * 100;
 
-  new Chart(document.getElementById('c-proy-total'),{
-    type:'line',
-    data:{labels:pAnios,datasets:[{label:'Cajas acumuladas',data:pTotArr,
-      borderColor:'#b8410e',
-      backgroundColor: (ctx) => {
-        const {chart} = ctx; const a = chart.chartArea; if(!a) return 'rgba(184,65,14,.12)';
-        const g = chart.ctx.createLinearGradient(0,a.top,0,a.bottom);
-        g.addColorStop(0,'rgba(184,65,14,.32)');
-        g.addColorStop(1,'rgba(184,65,14,.02)');
-        return g;
-      },
-      borderWidth:3, tension:.42, fill:true, cubicInterpolationMode:'monotone',
-      pointBackgroundColor:'#b8410e', pointBorderColor:'#fff', pointBorderWidth:2,
-      pointRadius:7, pointHoverRadius:10}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:36, bottom:32, left:18, right:18}},
-      plugins:{
-        legend:{display:false},
-        tooltip:{enabled:false},
-        archiveBoxes:{ enabled:true },
-        datalabels:{
-          display:true,
-          anchor:'end', align:'top', offset:8,
-          color:'#1a1612',
-          backgroundColor:'rgba(255,255,255,.85)',
-          borderColor:'rgba(184,65,14,.25)', borderWidth:1, borderRadius:4,
-          padding:{top:3,bottom:3,left:7,right:7},
-          font:{family:"'JetBrains Mono',monospace", size:11, weight:'700'},
-          formatter: v => fmt(v)
-        }
-      },
-      scales:{
-        x:{ grid:{display:false}, ticks:{ padding:24, font:{size:12,weight:'700'}, color:'#1a1612' } },
-        y:{ min:yMinDramatic, max:yMaxDramatic, grid:{color:'#f0ead9'}, ticks:{callback:v=>fmtS(v)} }
-      }}
-  });
+  function buildProyTotalChart(canvasId){
+    const el = document.getElementById(canvasId); if (!el) return;
+    new Chart(el,{
+      type:'line',
+      data:{labels:pAnios,datasets:[{label:'Cajas acumuladas',data:pTotArr,
+        borderColor:'#b8410e',
+        backgroundColor: (ctx) => {
+          const {chart} = ctx; const a = chart.chartArea; if(!a) return 'rgba(184,65,14,.12)';
+          const g = chart.ctx.createLinearGradient(0,a.top,0,a.bottom);
+          g.addColorStop(0,'rgba(184,65,14,.32)');
+          g.addColorStop(1,'rgba(184,65,14,.02)');
+          return g;
+        },
+        borderWidth:3, tension:.42, fill:true, cubicInterpolationMode:'monotone',
+        pointBackgroundColor:'#b8410e', pointBorderColor:'#fff', pointBorderWidth:2,
+        pointRadius:7, pointHoverRadius:10}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        layout:{padding:{top:36, bottom:32, left:18, right:18}},
+        plugins:{
+          legend:{display:false},
+          tooltip:{enabled:false},
+          archiveBoxes:{ enabled:true },
+          datalabels:{
+            display:true,
+            anchor:'end', align:'top', offset:8,
+            color:'#1a1612',
+            backgroundColor:'rgba(255,255,255,.85)',
+            borderColor:'rgba(184,65,14,.25)', borderWidth:1, borderRadius:4,
+            padding:{top:3,bottom:3,left:7,right:7},
+            font:{family:"'JetBrains Mono',monospace", size:11, weight:'700'},
+            formatter: v => fmt(v)
+          }
+        },
+        scales:{
+          x:{ grid:{display:false}, ticks:{ padding:24, font:{size:12,weight:'700'}, color:'#1a1612' } },
+          y:{ min:yMinDramatic, max:yMaxDramatic, grid:{color:'#f0ead9'}, ticks:{callback:v=>fmtS(v)} }
+        }}
+    });
+  }
+  buildProyTotalChart('c-proy-total');
+  buildProyTotalChart('c-proy-total-r');
 
   // ── Proyectado dos · skyline moderno (HTML/CSS) ─────
-  (function buildProyectadoDos(){
-    const host = document.getElementById('proy-skyline');
-    if (!host) return;
+  function buildProySkyline(hostId){
+    const host = document.getElementById(hostId);
+    if (!host) return null;
     const minV = Math.min(...pTotArr);
     const maxV = Math.max(...pTotArr);
     const span = Math.max(1, maxV - minV);
     pAnios.forEach((label, i) => {
       const v = pTotArr[i];
       const prev = i > 0 ? pTotArr[i-1] : null;
-      // altura: 28% mínima para que la existencia se vea, 92% máxima
       const norm = (v - minV) / span;
       const heightPct = 28 + norm * 64;
       const isExist = i === 0;
@@ -1349,36 +1342,47 @@ function initDashboard(D) {
         <div class="proy-year">${label}</div>`;
       host.appendChild(col);
     });
-    // Animación al activarse la vista
     function animateBars(){
       host.querySelectorAll('.proy-bar').forEach((el, i) => {
         setTimeout(() => { el.style.height = el.dataset.h + '%'; }, 80 * i);
       });
     }
     host.dataset.animate = 'pending';
-    window._proySkylineAnimate = animateBars;
-  })();
-
-  // Toggle Pendiente / Proyectado dos
-  const proyBtns = document.querySelectorAll('[data-proy-view]');
-  const proyViews = {
-    pendiente:    document.getElementById('proy-view-pendiente'),
-    proyectado2:  document.getElementById('proy-view-proyectado2')
+    return animateBars;
+  }
+  const proyAnimate = {
+    main:    buildProySkyline('proy-skyline'),
+    resumen: buildProySkyline('proy-skyline-r')
   };
-  proyBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      proyBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const view = btn.dataset.proyView;
-      Object.entries(proyViews).forEach(([k, el]) => {
-        if (!el) return;
-        el.style.display = (k === view) ? (k === 'proyectado2' ? 'block' : '') : 'none';
+  window._proySkylineAnimate = proyAnimate.main;
+
+  // Toggle Pendiente / Proyectado dos · scoped por grupo
+  document.querySelectorAll('[data-proy-group]').forEach(group => {
+    const scope  = group.dataset.proyGroup;
+    const suffix = scope === 'resumen' ? '-r' : '';
+    const btns   = group.querySelectorAll('[data-proy-view]');
+    const views  = {
+      pendiente:   document.getElementById('proy-view-pendiente'+suffix),
+      proyectado2: document.getElementById('proy-view-proyectado2'+suffix)
+    };
+    const skyId = 'proy-skyline'+suffix;
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.proyView;
+        Object.entries(views).forEach(([k, el]) => {
+          if (!el) return;
+          el.style.display = (k === view) ? (k === 'proyectado2' ? 'block' : '') : 'none';
+        });
+        if (view === 'proyectado2') {
+          const anim = proyAnimate[scope];
+          document.querySelectorAll('#'+skyId+' .proy-bar').forEach(el => el.style.height = '0%');
+          if (typeof anim === 'function') {
+            requestAnimationFrame(() => requestAnimationFrame(anim));
+          }
+        }
       });
-      if (view === 'proyectado2' && typeof window._proySkylineAnimate === 'function') {
-        // reset y vuelve a animar
-        document.querySelectorAll('#proy-skyline .proy-bar').forEach(el => el.style.height = '0%');
-        requestAnimationFrame(() => requestAnimationFrame(window._proySkylineAnimate));
-      }
     });
   });
 

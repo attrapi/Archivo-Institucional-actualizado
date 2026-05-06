@@ -372,27 +372,27 @@ body.report-mode #tab-resumen{display:block !important}
         <div class="chart-wrap"><canvas id="c-bodegas-super"></canvas></div>
       </div>
     </div>
-    <div style="margin-bottom:20px">
+    <div class="grid-2">
       <div class="card">
         <div class="card-title">Cajas por unidad ATTRAPI</div>
         <div class="card-sub">Ordenadas por volumen total</div>
         <div class="chart-wrap"><canvas id="c-unidades-bar"></canvas></div>
       </div>
-    </div>
-    <div class="card" style="margin-bottom:20px" data-proy-group="resumen">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">
-        <div>
-          <div class="card-title">Crecimiento total proyectado</div>
-          <div class="card-sub" id="proy-sub-r" style="margin-bottom:0">—</div>
+      <div class="card" data-proy-group="resumen">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <div>
+            <div class="card-title">Crecimiento total proyectado</div>
+            <div class="card-sub" id="proy-sub-r" style="margin-bottom:0">—</div>
+          </div>
+          <div class="toggle-group">
+            <button class="active" data-proy-view="pendiente">Pendiente</button>
+            <button data-proy-view="proyectado2">Proyectado dos</button>
+          </div>
         </div>
-        <div class="toggle-group">
-          <button class="active" data-proy-view="pendiente">Pendiente</button>
-          <button data-proy-view="proyectado2">Proyectado dos</button>
+        <div class="chart-wrap" id="proy-view-pendiente-r"><canvas id="c-proy-total-r"></canvas></div>
+        <div id="proy-view-proyectado2-r" style="display:none">
+          <div id="proy-skyline-r" class="proy-skyline" style="height:300px"></div>
         </div>
-      </div>
-      <div class="chart-wrap tall" id="proy-view-pendiente-r" style="height:460px"><canvas id="c-proy-total-r"></canvas></div>
-      <div id="proy-view-proyectado2-r" style="display:none">
-        <div id="proy-skyline-r" class="proy-skyline"></div>
       </div>
     </div>
   </section>

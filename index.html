@@ -1587,18 +1587,36 @@ function initDashboard(D) {
         #pdf-report .tank-fill.low{background:#4f7a40 !important}
         #pdf-report .tank-fill.mid{background:#a87b1d !important}
         #pdf-report .tank-fill.high{background:#a5360a !important}
+        /* Layout vertical para PDF portrait: apila grillas de 2 columnas */
+        #pdf-report .grid-2,
+        #pdf-report .grid-2-eq{grid-template-columns:1fr !important;gap:14px !important}
+        #pdf-report [style*="grid-template-columns:1fr 1fr"],
+        #pdf-report [style*="grid-template-columns: 1fr 1fr"],
+        #pdf-report [style*="grid-template-columns:1fr auto"],
+        #pdf-report [style*="grid-template-columns: 1fr auto"]{grid-template-columns:1fr !important}
+        #pdf-report .panel{margin-bottom:14px !important;padding:0 !important;max-width:100% !important}
+        #pdf-report section.panel{padding:0 !important}
+        #pdf-report .sec-head{margin-bottom:12px !important;padding-bottom:8px !important}
+        #pdf-report .card{padding:14px 16px !important;break-inside:avoid;page-break-inside:avoid}
+        #pdf-report .chart-wrap{height:240px !important}
+        #pdf-report .chart-wrap.tall{height:280px !important}
+        #pdf-report .chart-wrap.short{height:200px !important}
+        #pdf-report #proy-view-pendiente,
+        #pdf-report #proy-view-pendiente-r{height:280px !important}
+        #pdf-report .toggle-group{display:none !important}
+        #pdf-report .search-box{display:none !important}
       `;
-      const HEADER_HTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 8px 14px;margin-bottom:10px;border-bottom:2px solid #3d332a;font-family:\'Fraunces\',serif">'
-                       +   '<div style="display:flex;flex-direction:column;gap:8px;text-align:left;color:#000;line-height:1.15;padding-left:16px;border-left:3px solid #b8410e">'
-                       +     '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Dirección de Procesos Administrativos de Construcción</div>'
-                       +     '<div style="font-size:22px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></div>'
+      const HEADER_HTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 6px 10px;margin-bottom:8px;border-bottom:2px solid #3d332a;font-family:\'Fraunces\',serif">'
+                       +   '<div style="display:flex;flex-direction:column;gap:6px;text-align:left;color:#000;line-height:1.15;padding-left:12px;border-left:3px solid #b8410e">'
+                       +     '<div style="font-size:16px;font-weight:700;letter-spacing:-.01em">Dirección de Procesos Administrativos de Construcción</div>'
+                       +     '<div style="font-size:16px;font-weight:700;letter-spacing:-.01em">Estado del archivo <em style="font-style:italic;color:#b8410e;font-weight:700">de concentración</em></div>'
                        +   '</div>'
-                       +   '<img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:120px;width:auto;object-fit:contain;flex-shrink:0">'
+                       +   '<img src="ATTRAPI.png" alt="ATTRAPI" crossorigin="anonymous" style="height:72px;width:auto;object-fit:contain;flex-shrink:0">'
                        + '</div>';
 
       async function renderNodeToCanvas(node, sectionLabel = '') {
         const wrap = document.createElement('div');
-        wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:1400px;background:#ffffff;padding:20px;font-family:"DM Sans",sans-serif;color:#000';
+        wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:980px;background:#ffffff;padding:18px;font-family:"DM Sans",sans-serif;color:#000';
         wrap.id = 'pdf-report';
         const styleOverride = document.createElement('style');
         styleOverride.textContent = STYLE_OVERRIDE_CSS;
@@ -1675,8 +1693,14 @@ function initDashboard(D) {
       const extras = [
         { tabId: 'tab-bodegas',  label: 'Bodegas · Ocupación por superficie',
           getNode: t => { const c = t.querySelector('#tank-grid-m2'); return c ? c.closest('.card').parentElement : null; } },
+        { tabId: 'tab-bodegas',  label: 'Proyección Sexenal 2025–2030',
+          getNode: t => { const c = t.querySelector('#c-proy-total'); return c ? c.closest('.panel') : null; } },
         { tabId: 'tab-unidades', label: 'Unidades administrativas · Transferidas y Heredadas DGDFM',
           getNode: t => { const c = t.querySelector('#c-unidades-stacked'); return c ? c.closest('.card') : null; } },
+        { tabId: 'tab-tp',       label: 'Unidad de Construcción · Proyección por obra',
+          getNode: t => { const c = t.querySelector('#c-proy-obras'); return c ? c.closest('.card') : null; } },
+        { tabId: 'tab-tp',       label: 'Unidad de Construcción · Tabla de proyección',
+          getNode: t => { const tb = t.querySelector('#tbody-proy'); return tb ? tb.closest('.card') : null; } },
         { tabId: 'tab-tp',       label: 'Unidad de Construcción · Cajas por sección',
           getNode: t => t.querySelector('.grid-2-eq') },
         { tabId: 'tab-ts',       label: 'Transferencias Secundarias · Avance por cohorte',
@@ -1699,13 +1723,16 @@ function initDashboard(D) {
         }
 
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
+        const pdf = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
         const pw = pdf.internal.pageSize.getWidth();
         const ph = pdf.internal.pageSize.getHeight();
+        const margin = 6; // mm a cada lado
+        const aw = pw - margin * 2;
+        const ah = ph - margin * 2;
         pages.forEach((cv, i) => {
           const ratio = cv.width / cv.height;
-          let w = pw, h = pw / ratio;
-          if (h > ph) { h = ph; w = ph * ratio; }
+          let w = aw, h = aw / ratio;
+          if (h > ah) { h = ah; w = ah * ratio; }
           const x = (pw - w) / 2, y = (ph - h) / 2;
           if (i > 0) pdf.addPage();
           pdf.addImage(cv.toDataURL('image/png'), 'PNG', x, y, w, h);
